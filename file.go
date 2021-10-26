@@ -71,12 +71,12 @@ func FileWrite(filename string, content string) error {
 	return nil
 }
 
-func FileRead(filename string) (content string, err error) {
+func FileRead(filename string) (content []byte, err error) {
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(buf), err
+	return buf, err
 }
 
 func GetExecPath() string {
