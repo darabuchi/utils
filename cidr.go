@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/binary"
 	"fmt"
+	"math/big"
 	"net"
 	"sort"
 )
@@ -48,8 +49,8 @@ type cidrBlock4 struct {
 }
 
 type cidrBlock6 struct {
-	first uint64
-	last  uint64
+	first *big.Int
+	last  *big.Int
 }
 
 func newBlock4(ip net.IP, mask net.IPMask) *cidrBlock4 {
@@ -76,8 +77,8 @@ func broadcast4(addr uint32, prefix uint) uint32 {
 	return addr | ^netmask4(prefix)
 }
 
-func broadcast6(addr uint64, prefix uint) uint64 {
-	return addr | ^netmask6(prefix)
+func broadcast6(addr *big.Int, prefix uint) *big.Int {
+	return addr.Xor(addr, netmask6(prefix))
 }
 
 func netmask4(prefix uint) uint32 {
@@ -87,19 +88,22 @@ func netmask4(prefix uint) uint32 {
 	return ^uint32((1 << (32 - prefix)) - 1)
 }
 
-func netmask6(prefix uint) uint64 {
-	if prefix == 0 {
-		return 0
+func netmask6(prefix uint) *big.Int {
+	b := big.NewInt(0)
+	if prefix > 0 {
+		b = b.Not(b.Rsh(big.NewInt(0), 32-(prefix)))
 	}
-	return ^uint64((1 << (64 - prefix)) - 1)
+	return b
 }
 
 func ipv4ToUInt32(ip net.IP) uint32 {
 	return binary.BigEndian.Uint32(ip)
 }
 
-func ipv6ToUInt64(ip net.IP) uint64 {
-	return binary.BigEndian.Uint64(ip)
+func ipv6ToUInt64(ip net.IP) *big.Int {
+	IPv6Int := big.NewInt(0)
+	IPv6Int.SetBytes(ip.To16())
+	return IPv6Int
 }
 
 func uint32ToIPV4(addr uint32) net.IP {
@@ -108,9 +112,9 @@ func uint32ToIPV4(addr uint32) net.IP {
 	return ip
 }
 
-func uint64ToIPV6(addr uint64) net.IP {
+func uint64ToIPV6(addr *big.Int) net.IP {
 	ip := make([]byte, net.IPv6len)
-	binary.BigEndian.PutUint64(ip, addr)
+	binary.BigEndian.PutUint64(ip, addr.Uint64())
 	return ip
 }
 
@@ -156,16 +160,16 @@ func (c cidrBlock6s) Less(i, j int) bool {
 	rhs := c[j]
 
 	// By last IP in the range.
-	if lhs.last < rhs.last {
+	if lhs.last.Cmp(rhs.last) < 0 {
 		return true
-	} else if lhs.last > rhs.last {
+	} else if lhs.last.Cmp(rhs.last) > 0 {
 		return false
 	}
 
 	// Then by first IP in the range.
-	if lhs.first < rhs.first {
+	if lhs.first.Cmp(rhs.first) < 0 {
 		return true
-	} else if lhs.first > rhs.first {
+	} else if lhs.first.Cmp(rhs.first) > 0 {
 		return false
 	}
 
@@ -184,6 +188,8 @@ func MergeIPNets(nets []*net.IPNet) ([]*net.IPNet, error) {
 		return make([]*net.IPNet, 0), nil
 	}
 
+	var merged []*net.IPNet
+
 	// Split into IPv4 and IPv6 lists.
 	// Merge the list separately and then combine.
 	var block4s cidrBlock4s
@@ -192,11 +198,10 @@ func MergeIPNets(nets []*net.IPNet) ([]*net.IPNet, error) {
 		if net.IP.To4() != nil {
 			block4s = append(block4s, newBlock4(net.IP.To4(), net.Mask))
 		} else if net.IP.To16() != nil {
-			block6s = append(block6s, newBlock6(net.IP.To16(), net.Mask))
+			merged = append(merged, net)
+			//block6s = append(block6s, newBlock6(net.IP.To16(), net.Mask))
 		}
 	}
-
-	var merged []*net.IPNet
 
 	merged4, err := merge4(block4s)
 	if err != nil {
@@ -248,9 +253,9 @@ func merge6(blocks cidrBlock6s) ([]*net.IPNet, error) {
 
 	// Coalesce overlapping blocks.
 	for i := len(blocks) - 1; i > 0; i-- {
-		if blocks[i].first <= blocks[i-1].last+1 {
+		if blocks[i].first.Cmp(big.NewInt(0).Add(blocks[i-1].last, big.NewInt(1))) <= 0 {
 			blocks[i-1].last = blocks[i].last
-			if blocks[i].first < blocks[i-1].first {
+			if blocks[i].first.Cmp(blocks[i-1].last) <= 0 {
 				blocks[i-1].first = blocks[i].first
 			}
 			blocks[i] = nil
@@ -263,7 +268,7 @@ func merge6(blocks cidrBlock6s) ([]*net.IPNet, error) {
 			continue
 		}
 
-		if err := splitRange6(0, 0, block.first, block.last, &merged); err != nil {
+		if err := splitRange6(big.NewInt(0), 0, block.first, block.last, &merged); err != nil {
 			return nil, err
 		}
 	}
@@ -305,13 +310,17 @@ func splitRange4(addr uint32, prefix uint, lo, hi uint32, cidrs *[]*net.IPNet) e
 }
 
 // splitRange4 recursively computes the CIDR blocks to cover the range lo to hi.
-func splitRange6(addr uint64, prefix uint, lo, hi uint64, cidrs *[]*net.IPNet) error {
-	if prefix > 32 {
+func splitRange6(addr *big.Int, prefix uint, lo, hi *big.Int, cidrs *[]*net.IPNet) error {
+	if prefix > 64 {
 		return fmt.Errorf("Invalid mask size: %d", prefix)
 	}
 
 	bc := broadcast6(addr, prefix)
-	if (lo < addr) || (hi > bc) {
+	if (lo.Cmp(addr) < 0) || hi.Cmp(bc) < 0 {
+		fmt.Println(addr)
+		fmt.Println(lo)
+		fmt.Println(hi)
+		fmt.Println(bc)
 		return fmt.Errorf("%d, %d out of range for network %d/%d, broadcast %d", lo, hi, addr, prefix, bc)
 	}
 
@@ -324,9 +333,9 @@ func splitRange6(addr uint64, prefix uint, lo, hi uint64, cidrs *[]*net.IPNet) e
 	prefix++
 	lowerHalf := addr
 	upperHalf := setBit6(addr, prefix, 1)
-	if hi < upperHalf {
+	if hi.Cmp(upperHalf) < 0 {
 		return splitRange6(lowerHalf, prefix, lo, hi, cidrs)
-	} else if lo >= upperHalf {
+	} else if lo.Cmp(upperHalf) >= 0 {
 		return splitRange6(upperHalf, prefix, lo, hi, cidrs)
 	} else {
 		err := splitRange6(lowerHalf, prefix, lo, broadcast6(lowerHalf, prefix), cidrs)
@@ -353,15 +362,15 @@ func setBit4(addr uint32, bit uint, val uint) uint32 {
 }
 
 // setBit sets the specified bit in an address to 0 or 1.
-func setBit6(addr uint64, bit uint, val uint) uint64 {
+func setBit6(addr *big.Int, bit uint, val uint) *big.Int {
 	if bit < 0 {
 		panic("negative bit index")
 	}
 
 	if val == 0 {
-		return addr & ^(1 << (32 - bit))
+		return addr.AndNot(addr, big.NewInt(0).Lsh(big.NewInt(1), 32-bit))
 	} else if val == 1 {
-		return addr | (1 << (32 - bit))
+		return addr.Or(addr, big.NewInt(0).Lsh(big.NewInt(1), 32-bit))
 	} else {
 		panic("set bit is not 0 or 1")
 	}
