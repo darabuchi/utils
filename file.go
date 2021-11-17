@@ -71,6 +71,20 @@ func FileWrite(filename string, content string) error {
 	return nil
 }
 
+func FileAppend(filename string, content string) error {
+	out, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND, 0600)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = out.WriteString(content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func FileRead(filename string) (content []byte, err error) {
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
