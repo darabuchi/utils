@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"net"
 	"sort"
@@ -194,8 +193,6 @@ func MergeIPNets(nets []*net.IPNet) ([]*net.IPNet, error) {
 			block4s = append(block4s, newBlock4(net.IP.To4(), net.Mask))
 		} else if net.IP.To16() != nil {
 			block6s = append(block6s, newBlock6(net.IP.To16(), net.Mask))
-		} else {
-			return nil, errors.New("Not implemented")
 		}
 	}
 
