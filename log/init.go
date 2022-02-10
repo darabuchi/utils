@@ -55,6 +55,10 @@ func SetReportCaller(include bool) {
 	std.SetReportCaller(include)
 }
 
+func SetLevel(level Level) {
+	std.SetLevel(logrus.Level(level))
+}
+
 func AddOutput(out io.Writer) {
 	logrus.AddHook(lfshook.NewHook(lfshook.WriterMap{
 		logrus.TraceLevel: out,
