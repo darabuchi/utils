@@ -3,6 +3,7 @@ package log
 import (
 	"bytes"
 	"fmt"
+	"github.com/petermattis/goid"
 	"github.com/sirupsen/logrus"
 	"path"
 	"runtime"
@@ -36,6 +37,8 @@ func (p *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 		b.WriteString(p.module)
 		b.WriteString(" ")
 	}
+
+	b.WriteString(fmt.Sprintf("(%d.%d) ", pid, goid.Get()))
 
 	b.WriteString(entry.Time.Format("2006-01-02 15:04:05.9999Z07:00"))
 

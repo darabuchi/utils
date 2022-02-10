@@ -29,6 +29,8 @@ var (
 	//}
 
 	logFmt = &Formatter{}
+
+	pid = os.Getpid()
 )
 
 func init() {
