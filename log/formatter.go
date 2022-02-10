@@ -10,6 +10,7 @@ import (
 )
 
 type Formatter struct {
+	module string
 }
 
 const (
@@ -28,27 +29,17 @@ const (
 	endColor = "\u001B[0m"
 )
 
-func getColorByLevel(level logrus.Level) string {
-	switch level {
-	case logrus.DebugLevel, logrus.TraceLevel:
-		return colorGreen
-
-	case logrus.WarnLevel:
-		return colorYellow
-
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
-		return colorRed
-
-	default:
-		return colorGreen
-	}
-}
-
-func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (p *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var b bytes.Buffer
+
+	if p.module != "" {
+		b.WriteString(p.module)
+		b.WriteString(" ")
+	}
+
 	b.WriteString(entry.Time.Format("2006-01-02 15:04:05.9999Z07:00"))
 
-	color := getColorByLevel(entry.Level)
+	color := p.getColorByLevel(entry.Level)
 
 	b.WriteString(color)
 	b.WriteString(" [")
@@ -66,7 +57,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	b.WriteString(color)
 	b.WriteString(" (")
-	b.WriteString(path.Join(getPackageName(callerName), path.Base(file)))
+	b.WriteString(path.Join(p.getPackageName(callerName), path.Base(file)))
 	b.WriteString(":")
 	b.WriteString(fmt.Sprintf("%d", callerLine))
 	b.WriteString(")")
@@ -77,7 +68,23 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func getPackageName(f string) string {
+func (p *Formatter) getColorByLevel(level logrus.Level) string {
+	switch level {
+	case logrus.DebugLevel, logrus.TraceLevel:
+		return colorGreen
+
+	case logrus.WarnLevel:
+		return colorYellow
+
+	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
+		return colorRed
+
+	default:
+		return colorGreen
+	}
+}
+
+func (p *Formatter) getPackageName(f string) string {
 	for {
 		lastPeriod := strings.LastIndex(f, ".")
 		lastSlash := strings.LastIndex(f, "/")
@@ -89,4 +96,8 @@ func getPackageName(f string) string {
 	}
 
 	return f
+}
+
+func (p *Formatter) SetModule(module string) {
+	p.module = module
 }

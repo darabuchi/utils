@@ -54,6 +54,10 @@ func SetLevel(level Level) {
 	std.SetLevel(logrus.Level(level))
 }
 
+func SetModule(module string) {
+	logFmt.SetModule(module)
+}
+
 func AddOutput(out io.Writer) {
 	std.AddHook(lfshook.NewHook(lfshook.WriterMap{
 		logrus.TraceLevel: out,
