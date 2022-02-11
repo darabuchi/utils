@@ -37,7 +37,6 @@ func init() {
 	std.SetFormatter(logFmt)
 	std.SetReportCaller(false)
 	std.SetOutput(os.Stdout)
-	std.SetReportCaller(true)
 }
 
 func New() *logrus.Logger {
