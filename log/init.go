@@ -1,14 +1,14 @@
 package log
 
 import (
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap/zapcore"
 	"io"
 	"os"
 )
 
 var (
-	std = logrus.New()
+	//std = logrus.New()
+	std = newLogger()
 	//logFmt = &nested.Formatter{
 	//	FieldsOrder: []string{
 	//		logrus.FieldKeyTime, logrus.FieldKeyLevel,
@@ -34,39 +34,31 @@ var (
 )
 
 func init() {
-	std.SetFormatter(logFmt)
-	std.SetReportCaller(false)
-	std.SetOutput(os.Stdout)
+	//std.SetFormatter(logFmt)
+	//std.SetReportCaller(false)
+	//std.SetOutput(os.Stdout)
 }
 
-func New() *logrus.Logger {
+func New() *Logger {
 	return std
 }
 
-func SetOutput(out io.Writer) {
-	std.SetOutput(out)
-}
-
-func SetFormatter(formatter logrus.Formatter) {
-	std.SetFormatter(formatter)
+func SetOutput(write io.Writer) {
+	std.SetOutput(zapcore.AddSync(write))
 }
 
 func SetLevel(level Level) {
-	std.SetLevel(logrus.Level(level))
+	std.SetLevel(level)
 }
 
-func SetModule(module string) {
-	logFmt.SetModule(module)
+//func SetModule(module string) {
+//	logFmt.SetModule(module)
+//}
+
+func AddOutput(write io.Writer) {
+	std.AddOutput(zapcore.AddSync(write))
 }
 
-func AddOutput(out io.Writer) {
-	std.AddHook(lfshook.NewHook(lfshook.WriterMap{
-		logrus.TraceLevel: out,
-		logrus.DebugLevel: out,
-		logrus.InfoLevel:  out,
-		logrus.WarnLevel:  out,
-		logrus.ErrorLevel: out,
-		logrus.FatalLevel: out,
-		logrus.PanicLevel: out,
-	}, logFmt))
+func Sync() {
+	std.Sync()
 }

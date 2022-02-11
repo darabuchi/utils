@@ -42,7 +42,7 @@ func (p *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	b.WriteString(entry.Time.Format("2006-01-02 15:04:05.9999Z07:00"))
 
-	color := p.getColorByLevel(entry.Level)
+	color := getColorByLevel(Level(entry.Level))
 
 	b.WriteString(color)
 	b.WriteString(" [")
@@ -60,7 +60,7 @@ func (p *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	b.WriteString(color)
 	b.WriteString(" (")
-	b.WriteString(path.Join(p.getPackageName(callerName), path.Base(file)))
+	b.WriteString(path.Join(getPackageName(callerName), path.Base(file)))
 	b.WriteString(":")
 	b.WriteString(fmt.Sprintf("%d", callerLine))
 	b.WriteString(")")
@@ -71,15 +71,21 @@ func (p *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (p *Formatter) getColorByLevel(level logrus.Level) string {
+func (p *Formatter) Clone() *Formatter {
+	return &Formatter{
+		module: p.module,
+	}
+}
+
+func getColorByLevel(level Level) string {
 	switch level {
-	case logrus.DebugLevel, logrus.TraceLevel:
+	case DebugLevel, TraceLevel:
 		return colorGreen
 
-	case logrus.WarnLevel:
+	case WarnLevel:
 		return colorYellow
 
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
+	case ErrorLevel, FatalLevel, PanicLevel:
 		return colorRed
 
 	default:
@@ -87,7 +93,7 @@ func (p *Formatter) getColorByLevel(level logrus.Level) string {
 	}
 }
 
-func (p *Formatter) getPackageName(f string) string {
+func getPackageName(f string) string {
 	for {
 		lastPeriod := strings.LastIndex(f, ".")
 		lastSlash := strings.LastIndex(f, "/")
