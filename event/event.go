@@ -11,54 +11,6 @@ import (
 
 const worker = 3
 
-type EventData struct {
-	lock sync.RWMutex
-
-	data map[string]interface{}
-}
-
-func NewData(data map[string]interface{}) *EventData {
-	return &EventData{
-		data: data,
-	}
-}
-
-func (p *EventData) Get(key string) interface{} {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-	return p.data[key]
-}
-
-func (p *EventData) GetAll() map[string]interface{} {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-	return p.data
-}
-
-func (p *EventData) GetDef(key string, def interface{}) interface{} {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-	if val, ok := p.data[key]; ok {
-		return val
-	}
-	return def
-}
-
-func (p *EventData) GetUint32(key string) uint32 {
-	val := p.data[key]
-	if val == nil {
-		return 0
-	}
-
-	return val.(uint32)
-}
-
-func (p *EventData) Set(key string, val interface{}) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-	p.data[key] = val
-}
-
 type Event struct {
 	Name string
 	Data *EventData
