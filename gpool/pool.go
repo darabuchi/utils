@@ -25,7 +25,7 @@ type Pool struct {
 	wait              chan poolQueue
 
 	total     *atomic.Uint64
-	taskTotal *atomic.Uint32
+	taskTotal *atomic.Uint64
 
 	stop chan bool
 
@@ -43,7 +43,7 @@ func newPool(name string, id string, pool *workPool) *Pool {
 		worker:    atomic.NewUint32(0),
 		name:      name,
 
-		taskTotal: atomic.NewUint32(0),
+		taskTotal: atomic.NewUint64(0),
 		total:     atomic.NewUint64(0),
 		wait:      make(chan poolQueue, 100),
 		stop:      make(chan bool),
@@ -52,11 +52,12 @@ func newPool(name string, id string, pool *workPool) *Pool {
 	}
 }
 
-func (p *Pool) SetDefLogic(logic Logic) {
+func (p *Pool) SetDefLogic(logic Logic) *Pool {
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 
 	p.defLogic = logic
+	return p
 }
 
 func (p *Pool) SetWorker(worker int) {
@@ -86,7 +87,7 @@ func (p *Pool) run() {
 			p.total.Inc()
 
 			p.taskTotal.Inc()
-			p.pool.dec()
+			p.pool.onWorkerFree()
 			p.taskTotal.Dec()
 			p.taskWait.Done()
 		}()
@@ -231,14 +232,16 @@ func (p *Pool) needClose() bool {
 	return false
 }
 
-func (p *Pool) SetAlways() {
+func (p *Pool) SetAlways() *Pool {
 	p.SetTimeout(-1)
+	return p
 }
 
-func (p *Pool) SetTimeout(timeout time.Duration) {
+func (p *Pool) SetTimeout(timeout time.Duration) *Pool {
 	p.dataLock.Lock()
 	p.timeout = timeout
 	p.dataLock.Unlock()
+	return p
 }
 
 func (p *Pool) Submit(i interface{}) {
@@ -293,7 +296,6 @@ func (p *Pool) SubmitWithFunc(i interface{}, logic Logic) {
 	defer utils.CachePanic()
 
 	p.taskTotal.Inc()
-	p.pool.inc()
 	p.taskWait.Add(1)
 	p.wait <- poolQueue{
 		logic: logic,
@@ -326,6 +328,5 @@ func (p *Pool) Close() {
 
 	p.poolWait.Wait()
 
-	p.pool.done(uint64(p.taskTotal.Load()))
 	p.pool.freePool(p.id)
 }

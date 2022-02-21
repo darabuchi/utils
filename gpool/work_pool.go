@@ -16,13 +16,14 @@ type Logic func(i interface{})
 type workPool struct {
 	defaultLogic Logic
 
-	workTotal *atomic.Uint64
-
 	workerLock, poolLock sync.RWMutex
 
 	worker, maxWorker *atomic.Uint32
 
 	poolMap map[string]*Pool
+
+	// 各种消息通道
+	subWorkerCloseChan chan bool
 }
 
 type poolQueue struct {
@@ -32,10 +33,11 @@ type poolQueue struct {
 
 func NewPool(maxWorker int) *workPool {
 	p := &workPool{
-		workTotal: atomic.NewUint64(0),
 		maxWorker: atomic.NewUint32(uint32(maxWorker)),
 		poolMap:   map[string]*Pool{},
 		worker:    atomic.NewUint32(0),
+
+		subWorkerCloseChan: make(chan bool, 100),
 	}
 
 	go func(sign chan os.Signal) {
@@ -43,24 +45,25 @@ func NewPool(maxWorker int) *workPool {
 		for {
 			select {
 			case <-time.After(time.Second * 30):
+				// 定时刷新的兜底逻辑
+
 				log.SetTrace(fmt.Sprintf("work_pool.check.%s", sandid.New().String()))
-				for _, w := range p.clonePool() {
-					if w == nil {
-						continue
+				p.checkPools()
+			case <-p.subWorkerCloseChan:
+				//  有新的资源释放的时候的优化逻辑
+				log.SetTrace(fmt.Sprintf("work_pool.on_work_free.%s", sandid.New().String()))
+				for {
+					// 把多余的一起取完，不要处理太多次
+					select {
+					case <-p.subWorkerCloseChan:
+					case <-time.After(time.Millisecond * 1500):
+						goto END
 					}
-
-					if w.needClose() {
-						w.Close()
-					} else if w.needMoreWorker() {
-						log.Infof("%s(%s) need new worker", w.name, w.id)
-						w.tryApply()
-					}
-
-					log.Infof("%s(%s) worker:%d|max:%d|task total:%d|total:%d|wait:%d",
-						w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), w.total.Load(), len(w.wait))
 				}
 
-				log.Infof("worker pool worker:%d|max:%d|total:%d", p.worker.Load(), p.maxWorker.Load(), p.workTotal.Load())
+			END:
+				p.checkPools()
+
 			case <-sign:
 				log.Info("exist pool")
 				return
@@ -69,6 +72,34 @@ func NewPool(maxWorker int) *workPool {
 	}(utils.GetExitSign())
 
 	return p
+}
+
+func (p *workPool) checkPools() {
+	poolMap := p.clonePool()
+	var totalTask uint64
+	for _, w := range poolMap {
+		if w == nil {
+			continue
+		}
+
+		if w.needClose() {
+			w.Close()
+			continue
+		} else if w.needMoreWorker() {
+			log.Infof("%s(%s) need new worker", w.name, w.id)
+			w.tryApply()
+		}
+
+		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|total:%d|wait:%d",
+			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), w.total.Load(), len(w.wait))
+		totalTask += w.taskTotal.Load()
+	}
+
+	log.Infof("worker pool:%d|worker:%d|max:%d|total:%d", len(poolMap), p.worker.Load(), p.maxWorker.Load(), totalTask)
+}
+
+func (p *workPool) SetMaxWorker(worker int) {
+	p.maxWorker.Store(uint32(worker))
 }
 
 func (p *workPool) clonePool() []*Pool {
@@ -126,20 +157,16 @@ func (p *workPool) freeWorker() {
 	p.worker.Dec()
 }
 
-func (p *workPool) inc() {
-	p.workTotal.Inc()
-}
-
-func (p *workPool) dec() {
-	p.workTotal.Dec()
-}
-
-func (p *workPool) done(j uint64) {
-	p.workTotal.Sub(j)
-}
-
 func (p *workPool) LoadTotal() uint64 {
-	return p.workTotal.Load()
+	var totalTask uint64
+	for _, w := range p.clonePool() {
+		if w == nil {
+			continue
+		}
+
+		totalTask += w.taskTotal.Load()
+	}
+	return totalTask
 }
 
 func (p *workPool) Close() {
@@ -150,6 +177,12 @@ func (p *workPool) Close() {
 		log.Infof("close pool %s(%s)", w.name, w.id)
 		w.Close()
 	}
+
+	close(p.subWorkerCloseChan)
+}
+
+func (p *workPool) onWorkerFree() {
+	p.subWorkerCloseChan <- true
 }
 
 var _pool *workPool
@@ -168,4 +201,8 @@ func NewPoolGlobalWithFunc(name string, work int, logic Logic) *Pool {
 
 func PoolGlobalLoadTotal() uint64 {
 	return _pool.LoadTotal()
+}
+
+func SetPoolGlobalMaxWorker(worker int) {
+	_pool.SetMaxWorker(worker)
 }
