@@ -1,6 +1,8 @@
 package event
 
-import "sync"
+import (
+	"sync"
+)
 
 type EventData struct {
 	lock sync.RWMutex
@@ -84,4 +86,13 @@ func (p *EventData) GetStr(key string) string {
 	}
 
 	return val.(string)
+}
+
+func (p *EventData) GetBool(key string) bool {
+	val := p.data[key]
+	if val == nil {
+		return false
+	}
+
+	return val.(bool)
 }
