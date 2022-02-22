@@ -43,6 +43,15 @@ func (p *EventData) GetAll() map[string]interface{} {
 	return p.data
 }
 
+func (p *EventData) GetInt(key string) int {
+	val := p.data[key]
+	if val == nil {
+		return 0
+	}
+
+	return val.(int)
+}
+
 func (p *EventData) GetInt32(key string) int32 {
 	val := p.data[key]
 	if val == nil {
