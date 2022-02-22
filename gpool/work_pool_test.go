@@ -66,3 +66,40 @@ func TestPools(t *testing.T) {
 	log.Infof("wait finish")
 	w.Wait()
 }
+
+func TestSubPool(t *testing.T) {
+	log.SetLevel(log.InfoLevel)
+
+	SetPoolGlobalMaxWorker(3)
+
+	var w sync.WaitGroup
+	pool := NewPoolGlobalWithFunc("", 3, func(i interface{}) {
+		defer w.Done()
+		time.Sleep(time.Duration(rand.Intn(3)+i.(int)) % 3 * time.Second)
+	}).SetTimeout(time.Second * 10)
+
+	total := atomic.NewInt64(0)
+	newPool := func() *SubPool {
+		total.Inc()
+		return pool.NewSubPool(total.String())
+	}
+
+	submit := func(pool *SubPool, max int) {
+		for i := 0; i < max; i++ {
+			w.Add(1)
+			pool.Submit(i + 1)
+		}
+	}
+
+	run := func(max int) {
+		p := newPool()
+		submit(p, 25)
+	}
+
+	for i := 0; i < 25; i++ {
+		run(10)
+	}
+
+	log.Infof("wait finish")
+	w.Wait()
+}

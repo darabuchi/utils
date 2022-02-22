@@ -330,3 +330,11 @@ func (p *Pool) Close() {
 
 	p.pool.freePool(p.id)
 }
+
+func (p *Pool) NewSubPool(name string) *SubPool {
+	return p.NewSubPoolWithFunc(name, p.defLogic)
+}
+
+func (p *Pool) NewSubPoolWithFunc(name string, logic Logic) *SubPool {
+	return newSubPoolWithFunc(name, p, logic)
+}
