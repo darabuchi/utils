@@ -24,7 +24,6 @@ type Pool struct {
 	worker, maxWorker *atomic.Uint32
 	wait              chan poolQueue
 
-	total     *atomic.Uint64
 	taskTotal *atomic.Uint64
 
 	stop chan bool
@@ -44,7 +43,6 @@ func newPool(name string, id string, pool *workPool) *Pool {
 		name:      name,
 
 		taskTotal: atomic.NewUint64(0),
-		total:     atomic.NewUint64(0),
 		wait:      make(chan poolQueue, 100),
 		stop:      make(chan bool),
 		healthAt:  time.Now(),
@@ -84,9 +82,6 @@ func (p *Pool) resetWorker() {
 func (p *Pool) run() {
 	logic := func(i poolQueue) {
 		defer func() {
-			p.total.Inc()
-
-			p.taskTotal.Inc()
 			p.pool.onWorkerFree()
 			p.taskTotal.Dec()
 			p.taskWait.Done()

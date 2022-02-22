@@ -90,8 +90,8 @@ func (p *workPool) checkPools() {
 			w.tryApply()
 		}
 
-		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|total:%d|wait:%d",
-			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), w.total.Load(), len(w.wait))
+		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|wait:%d",
+			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), len(w.wait))
 		totalTask += w.taskTotal.Load()
 	}
 
