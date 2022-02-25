@@ -128,7 +128,7 @@ func (p *Pool) run() {
 					return
 				}
 
-				log.SetTrace(fmt.Sprintf("%s.%s", traceId, sandid.New().String()))
+				log.SetTrace(fmt.Sprintf("%s.%s.%s", i.traceId, traceId, sandid.New().String()))
 				logic(i)
 				log.SetTrace(traceId)
 				p.updateHealth()
@@ -200,7 +200,11 @@ func (p *Pool) needMoreWorkerWithoutLock() bool {
 		return false
 	}
 
-	if uint32(len(p.wait)) <= p.worker.Load() {
+	if len(p.wait) == 0 {
+		return false
+	}
+
+	if uint32(len(p.wait)) < p.worker.Load() {
 		log.Debugf("%s(%s) still has resource, skip", p.name, p.id)
 		return false
 	}
@@ -293,8 +297,9 @@ func (p *Pool) SubmitWithFunc(i interface{}, logic Logic) {
 	p.taskTotal.Inc()
 	p.taskWait.Add(1)
 	p.wait <- poolQueue{
-		logic: logic,
-		args:  i,
+		logic:   logic,
+		args:    i,
+		traceId: log.GetTrace(),
 	}
 	p.afterSubmit()
 }

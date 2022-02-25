@@ -27,8 +27,9 @@ type workPool struct {
 }
 
 type poolQueue struct {
-	logic func(i interface{})
-	args  interface{}
+	logic   func(i interface{})
+	args    interface{}
+	traceId string
 }
 
 func NewPool(maxWorker int) *workPool {
@@ -158,15 +159,17 @@ func (p *workPool) freeWorker() {
 }
 
 func (p *workPool) LoadTotal() uint64 {
-	var totalTask uint64
+	var total uint64
 	for _, w := range p.clonePool() {
 		if w == nil {
 			continue
 		}
-
-		totalTask += w.taskTotal.Load()
+		log.Infof("%s(%s) worker:%d|max:%d|total:%d|wait:%d",
+			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), len(w.wait))
+		total += w.taskTotal.Load()
 	}
-	return totalTask
+
+	return total
 }
 
 func (p *workPool) Close() {
