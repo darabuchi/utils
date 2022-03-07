@@ -188,6 +188,27 @@ func (p *workPool) onWorkerFree() {
 	p.subWorkerCloseChan <- true
 }
 
+func (p *workPool) Statistics() Statistics {
+	statistics := Statistics{
+		WorkStatisticsMap: map[string]*WorkStatistics{},
+	}
+
+	for _, w := range p.clonePool() {
+		if w == nil {
+			continue
+		}
+		statistics.TotalWork += w.taskTotal.Load()
+		statistics.TotalWait += uint64(len(w.wait))
+
+		statistics.WorkStatisticsMap[fmt.Sprintf("%s(%s)", w.name, w.id)] = &WorkStatistics{
+			TotalWork: w.taskTotal.Load(),
+			TotalWait: uint64(len(w.wait)),
+		}
+	}
+
+	return statistics
+}
+
 var _pool *workPool
 
 func init() {
@@ -208,4 +229,8 @@ func PoolGlobalLoadTotal() uint64 {
 
 func SetPoolGlobalMaxWorker(worker int) {
 	_pool.SetMaxWorker(worker)
+}
+
+func PoolGlobalStatistics() Statistics {
+	return _pool.Statistics()
 }
