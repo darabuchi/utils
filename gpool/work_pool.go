@@ -86,9 +86,18 @@ func (p *workPool) checkPools() {
 		if w.needClose() {
 			w.Close()
 			continue
-		} else if w.needMoreWorker() {
+		}
+
+		if w.needMoreWorker() {
 			log.Infof("%s(%s) need new worker", w.name, w.id)
-			w.tryApply()
+			// 申请失败，并且需要强制申请
+			if !w.tryApply() && w.needMoreWorkerForce() {
+				w.applyForce()
+			}
+		}
+
+		if w.needMoreFree() {
+			w.free()
 		}
 
 		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|wait:%d",
@@ -154,6 +163,19 @@ func (p *workPool) applyWorker() bool {
 	return true
 }
 
+func (p *workPool) applyWorkerForce() bool {
+	p.workerLock.Lock()
+	defer p.workerLock.Unlock()
+
+	if p.worker.Load() >= p.maxWorker.Load() {
+		return false
+	}
+
+	log.Infof("(force)now has %d worker pool", p.worker.Inc())
+
+	return true
+}
+
 func (p *workPool) freeWorker() {
 	p.worker.Dec()
 }
@@ -197,11 +219,13 @@ func (p *workPool) Statistics() Statistics {
 		if w == nil {
 			continue
 		}
-		statistics.TotalWork += w.taskTotal.Load()
+		statistics.TotalWork += w.worker.Load()
+		statistics.TotalTask += w.taskTotal.Load()
 		statistics.TotalWait += uint64(len(w.wait))
 
 		statistics.WorkStatisticsMap[fmt.Sprintf("%s(%s)", w.name, w.id)] = &WorkStatistics{
-			TotalWork: w.taskTotal.Load(),
+			TotalWork: w.worker.Load(),
+			TotalTask: w.taskTotal.Load(),
 			TotalWait: uint64(len(w.wait)),
 		}
 	}
@@ -212,7 +236,7 @@ func (p *workPool) Statistics() Statistics {
 var _pool *workPool
 
 func init() {
-	_pool = NewPool(32)
+	_pool = NewPool(64)
 }
 
 func NewPoolGlobal(name string, work int) *Pool {

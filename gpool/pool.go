@@ -2,6 +2,7 @@ package gpool
 
 import (
 	"fmt"
+	"github.com/VividCortex/ewma"
 	"github.com/aofei/sandid"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
@@ -32,6 +33,7 @@ type Pool struct {
 
 	healthAt time.Time
 	timeout  time.Duration
+	avgTime  ewma.MovingAverage
 }
 
 func newPool(name string, id string, pool *workPool) *Pool {
@@ -44,9 +46,11 @@ func newPool(name string, id string, pool *workPool) *Pool {
 
 		taskTotal: atomic.NewUint64(0),
 		wait:      make(chan poolQueue, 100),
-		stop:      make(chan bool),
+		stop:      make(chan bool, 1),
 		healthAt:  time.Now(),
 		timeout:   time.Minute * 5,
+
+		avgTime: ewma.NewMovingAverage(3),
 	}
 }
 
@@ -81,12 +85,15 @@ func (p *Pool) resetWorker() {
 
 func (p *Pool) run() {
 	logic := func(i poolQueue) {
+		start := time.Now()
+		defer func() {
+			p.avgTime.Add(time.Since(start).Seconds())
+		}()
 		defer func() {
 			p.pool.onWorkerFree()
 			p.taskTotal.Dec()
 			p.taskWait.Done()
 		}()
-
 		defer utils.CachePanic()
 
 		if i.logic == nil {
@@ -155,15 +162,37 @@ func (p *Pool) run() {
 	}(utils.GetExitSign())
 }
 
-func (p *Pool) tryApply() {
+func (p *Pool) tryApply() bool {
 	p.workLock.Lock()
 	defer p.workLock.Unlock()
 
 	if !p.needMoreWorkerWithoutLock() {
-		return
+		return false
 	}
 
 	if !p.pool.applyWorker() {
+		log.Infof("%s(%s) apply resource fail", p.name, p.id)
+		// 申请资源失败，退出
+		return false
+	}
+
+	// 申请成功了
+	log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
+
+	p.run()
+	return true
+}
+
+func (p *Pool) applyForce() {
+	p.workLock.Lock()
+	defer p.workLock.Unlock()
+
+	// 已经没有任务了，没有必要申请
+	if len(p.wait) == 0 {
+		return
+	}
+
+	if !p.pool.applyWorkerForce() {
 		log.Infof("%s(%s) apply resource fail", p.name, p.id)
 		// 申请资源失败，退出
 		return
@@ -173,6 +202,15 @@ func (p *Pool) tryApply() {
 	log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
 
 	p.run()
+}
+
+func (p *Pool) free() {
+	select {
+	case p.stop <- true:
+		log.Warnf("%s(%s) notify stop", p.name, p.id)
+	case <-time.After(time.Second * 5):
+		log.Warnf("%s(%s) notify stop timeout", p.name, p.id)
+	}
 }
 
 func (p *Pool) afterSubmit() {
@@ -191,6 +229,49 @@ func (p *Pool) needMoreWorker() bool {
 	defer p.workLock.Unlock()
 
 	return p.needMoreWorkerWithoutLock()
+}
+
+func (p *Pool) needMoreWorkerForce() bool {
+	p.workLock.Lock()
+	defer p.workLock.Unlock()
+
+	if len(p.wait) == 0 {
+		return false
+	}
+
+	timeout := p.timeout
+	if p.avgTime.Value() > 0 {
+		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Second
+	} else if timeout <= time.Minute {
+		timeout = time.Minute
+	}
+
+	timeout = timeout * 2
+
+	// 已经满负荷运行了一段时间了
+	if p.worker.Load() == p.maxWorker.Load() && time.Since(p.healthAt) > timeout {
+		return true
+	}
+
+	return false
+}
+
+func (p *Pool) needMoreFree() bool {
+	timeout := p.timeout
+	if p.avgTime.Value() > 0 {
+		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Second
+	} else if timeout <= time.Minute {
+		timeout = time.Minute
+	} else {
+		timeout = timeout / 2
+	}
+
+	// 已经满负荷运行了一段时间了
+	if p.worker.Load() == p.maxWorker.Load() && time.Since(p.healthAt) > timeout {
+		return true
+	}
+
+	return false
 }
 
 func (p *Pool) needMoreWorkerWithoutLock() bool {
