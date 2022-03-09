@@ -96,8 +96,10 @@ func (p *workPool) checkPools() {
 			}
 		}
 
-		if w.needMoreFree() {
-			w.free()
+		if p.worker.Load() >= p.maxWorker.Load() {
+			if w.needMoreFree() {
+				w.free()
+			}
 		}
 
 		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|wait:%d",
@@ -224,9 +226,12 @@ func (p *workPool) Statistics() Statistics {
 		statistics.TotalWait += uint64(len(w.wait))
 
 		statistics.WorkStatisticsMap[fmt.Sprintf("%s(%s)", w.name, w.id)] = &WorkStatistics{
-			TotalWork: w.worker.Load(),
-			TotalTask: w.taskTotal.Load(),
-			TotalWait: uint64(len(w.wait)),
+			Id:                w.id,
+			Name:              w.name,
+			TotalTask:         w.taskTotal.Load(),
+			TotalWork:         w.worker.Load(),
+			TotalWait:         uint64(len(w.wait)),
+			AvgProcessingTime: time.Millisecond * time.Duration(w.avgTime.Value()),
 		}
 	}
 
@@ -236,7 +241,7 @@ func (p *workPool) Statistics() Statistics {
 var _pool *workPool
 
 func init() {
-	_pool = NewPool(64)
+	_pool = NewPool(32)
 }
 
 func NewPoolGlobal(name string, work int) *Pool {

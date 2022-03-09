@@ -47,8 +47,9 @@ func newPool(name string, id string, pool *workPool) *Pool {
 		taskTotal: atomic.NewUint64(0),
 		wait:      make(chan poolQueue, 100),
 		stop:      make(chan bool, 1),
-		healthAt:  time.Now(),
-		timeout:   time.Minute * 5,
+
+		healthAt: time.Now(),
+		timeout:  time.Minute * 5,
 
 		avgTime: ewma.NewMovingAverage(3),
 	}
@@ -87,7 +88,7 @@ func (p *Pool) run() {
 	logic := func(i poolQueue) {
 		start := time.Now()
 		defer func() {
-			p.avgTime.Add(time.Since(start).Seconds())
+			p.avgTime.Add(float64(time.Since(start).Milliseconds()))
 		}()
 		defer func() {
 			p.pool.onWorkerFree()
@@ -232,24 +233,22 @@ func (p *Pool) needMoreWorker() bool {
 }
 
 func (p *Pool) needMoreWorkerForce() bool {
-	p.workLock.Lock()
-	defer p.workLock.Unlock()
-
 	if len(p.wait) == 0 {
 		return false
 	}
 
 	timeout := p.timeout
 	if p.avgTime.Value() > 0 {
-		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Second
+		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Millisecond
 	} else if timeout <= time.Minute {
 		timeout = time.Minute
 	}
 
-	timeout = timeout * 2
+	if timeout <= 0 {
+		timeout = time.Second * 10
+	}
 
-	// 已经满负荷运行了一段时间了
-	if p.worker.Load() == p.maxWorker.Load() && time.Since(p.healthAt) > timeout {
+	if p.worker.Load()/2 == p.maxWorker.Load() && time.Since(p.healthAt) >= timeout {
 		return true
 	}
 
@@ -257,17 +256,22 @@ func (p *Pool) needMoreWorkerForce() bool {
 }
 
 func (p *Pool) needMoreFree() bool {
-	timeout := p.timeout
-	if p.avgTime.Value() > 0 {
-		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Second
-	} else if timeout <= time.Minute {
-		timeout = time.Minute
-	} else {
-		timeout = timeout / 2
+	if len(p.wait) == 0 {
+		return false
 	}
 
-	// 已经满负荷运行了一段时间了
-	if p.worker.Load() == p.maxWorker.Load() && time.Since(p.healthAt) > timeout {
+	timeout := p.timeout
+	if p.avgTime.Value() > 0 {
+		timeout = time.Duration(p.avgTime.Value()*1.5) * time.Millisecond
+	} else if timeout <= time.Minute {
+		timeout = time.Minute
+	}
+
+	if timeout <= 0 {
+		timeout = time.Second * 10
+	}
+
+	if p.worker.Load()/2 == p.maxWorker.Load() && time.Since(p.healthAt) >= timeout {
 		return true
 	}
 

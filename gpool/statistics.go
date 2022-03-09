@@ -11,6 +11,9 @@ type Statistics struct {
 }
 
 type WorkStatistics struct {
+	Id   string
+	Name string
+
 	TotalTask uint64
 	TotalWork uint32
 	TotalWait uint64
