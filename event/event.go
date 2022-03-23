@@ -2,11 +2,11 @@ package event
 
 import (
 	"bytes"
-	"github.com/aofei/sandid"
-	"github.com/darabuchi/log"
-	"github.com/darabuchi/utils"
 	"os"
 	"sync"
+
+	"github.com/darabuchi/log"
+	"github.com/darabuchi/utils"
 )
 
 const worker = 3
@@ -51,8 +51,11 @@ func init() {
 							if msg.TraceId != "" {
 								traceId.WriteString(".")
 							}
-							traceId.WriteString(sandid.New().String())
+
+							traceId.WriteString(log.GenTraceId())
+
 							log.SetTrace(traceId.String())
+
 							listener(Event{
 								Name: msg.Name,
 								Data: msg.Data,

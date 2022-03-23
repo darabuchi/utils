@@ -2,13 +2,13 @@ package gpool
 
 import (
 	"fmt"
-	"github.com/aofei/sandid"
-	"github.com/darabuchi/log"
-	"github.com/darabuchi/utils"
-	"go.uber.org/atomic"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/darabuchi/log"
+	"github.com/darabuchi/utils"
+	"go.uber.org/atomic"
 )
 
 type Logic func(i interface{})
@@ -48,11 +48,11 @@ func NewPool(maxWorker int) *workPool {
 			case <-time.After(time.Second * 30):
 				// 定时刷新的兜底逻辑
 
-				log.SetTrace(fmt.Sprintf("work_pool.check.%s", sandid.New().String()))
+				log.SetTrace(fmt.Sprintf("work_pool.check.%s", log.GenTraceId()))
 				p.checkPools()
 			case <-p.subWorkerCloseChan:
 				//  有新的资源释放的时候的优化逻辑
-				log.SetTrace(fmt.Sprintf("work_pool.on_work_free.%s", sandid.New().String()))
+				log.SetTrace(fmt.Sprintf("work_pool.on_work_free.%s", log.GenTraceId()))
 				for {
 					// 把多余的一起取完，不要处理太多次
 					select {
@@ -131,7 +131,7 @@ func (p *workPool) NewPool(name string, work int) *Pool {
 }
 
 func (p *workPool) NewPoolWithFunc(name string, work int, logic Logic) *Pool {
-	id := sandid.New().String()
+	id := log.GenTraceId()
 
 	pool := newPool(name, id, p)
 	pool.SetWorker(work)

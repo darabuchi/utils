@@ -2,9 +2,10 @@ package gpool
 
 import (
 	"fmt"
-	"github.com/aofei/sandid"
-	"go.uber.org/atomic"
 	"sync"
+
+	"github.com/darabuchi/log"
+	"go.uber.org/atomic"
 )
 
 type SubPool struct {
@@ -26,7 +27,7 @@ type SubPool struct {
 func newSubPoolWithFunc(name string, pool *Pool, logic Logic) *SubPool {
 	s := SubPool{
 		name:         fmt.Sprintf("%s(%s)-%s", pool.name, pool.id, name),
-		id:           sandid.New().String(),
+		id:           log.GenTraceId(),
 		defaultLogic: logic,
 		total:        atomic.NewInt64(0),
 		pool:         pool,

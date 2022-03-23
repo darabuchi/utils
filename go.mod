@@ -4,8 +4,7 @@ go 1.15
 
 require (
 	github.com/VividCortex/ewma v1.2.0
-	github.com/aofei/sandid v1.2.0
-	github.com/darabuchi/log v0.0.0-20220303104043-346fa83f6ad5
+	github.com/darabuchi/log v0.0.0-20220323032131-710e5e1eab84
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
 	github.com/petermattis/goid v0.0.0-20220302125637-5f11c28912df
 	github.com/pkg/errors v0.9.1 // indirect

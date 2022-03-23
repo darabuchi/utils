@@ -2,14 +2,14 @@ package gpool
 
 import (
 	"fmt"
-	"github.com/VividCortex/ewma"
-	"github.com/aofei/sandid"
-	"github.com/darabuchi/log"
-	"github.com/darabuchi/utils"
-	"go.uber.org/atomic"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/VividCortex/ewma"
+	"github.com/darabuchi/log"
+	"github.com/darabuchi/utils"
+	"go.uber.org/atomic"
 )
 
 type Pool struct {
@@ -113,7 +113,7 @@ func (p *Pool) run() {
 	go func(sign chan os.Signal) {
 		defer p.poolWait.Done()
 
-		traceId := fmt.Sprintf("%s.%s.%s", p.name, p.id, sandid.New().String())
+		traceId := fmt.Sprintf("%s.%s.%s", p.name, p.id, log.GenTraceId())
 		log.SetTrace(traceId)
 		defer log.DelTrace()
 
@@ -136,7 +136,7 @@ func (p *Pool) run() {
 					return
 				}
 
-				log.SetTrace(fmt.Sprintf("%s.%s.%s", i.traceId, traceId, sandid.New().String()))
+				log.SetTrace(fmt.Sprintf("%s.%s.%s", i.traceId, traceId, log.GenTraceId()))
 				logic(i)
 				log.SetTrace(traceId)
 				p.updateHealth()
@@ -147,7 +147,7 @@ func (p *Pool) run() {
 					log.Warnf("%s(%s) without wait task,free resource", p.name, p.id)
 					return
 				}
-				//log.Infof("wait timeout,free resource for %s(%s)", p.name, p.id)
+				// log.Infof("wait timeout,free resource for %s(%s)", p.name, p.id)
 				log.Infof("%s(%s) worker is still alive,work:%d|max:%d|wait:%d", p.name, p.id, p.worker.Load(), p.maxWorker.Load(), len(p.wait))
 			case <-freeTicker.C:
 				log.Warnf("wait timeout,free resource for %s(%s)", p.name, p.id)
