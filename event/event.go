@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
@@ -91,5 +92,22 @@ func Trigger(name string, data *EventData) {
 		Name:    name,
 		Data:    data,
 		TraceId: log.GetTrace(),
+	}
+}
+
+func TriggerWithTimeout(name string, data *EventData, timeout time.Duration) {
+	log.Infof("send event to %s", name)
+
+	ticker := time.NewTimer(timeout)
+	defer ticker.Stop()
+	select {
+	case c <- eventMsg{
+		Name:    name,
+		Data:    data,
+		TraceId: log.GetTrace(),
+	}:
+	// 正常分支，不做特殊处理
+	case <-ticker.C:
+		log.Warnf("send event %s timeout", name)
 	}
 }
