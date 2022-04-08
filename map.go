@@ -489,9 +489,9 @@ func (p *Map) GetBytes(key string) []byte {
 	case uint64:
 		return []byte(fmt.Sprintf("%d", x))
 	case float32:
-		return []byte(fmt.Sprintf("%f", x))
+		return []byte(fmt.Sprintf("%v", x))
 	case float64:
-		return []byte(fmt.Sprintf("%f", x))
+		return []byte(fmt.Sprintf("%v", x))
 	case string:
 		return []byte(x)
 	case []byte:

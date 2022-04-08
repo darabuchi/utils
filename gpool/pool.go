@@ -75,12 +75,18 @@ func (p *Pool) SetWorker(worker int) {
 }
 
 func (p *Pool) resetWorker() {
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
 	for {
-		if !(p.maxWorker.Load() <= p.worker.Load()) {
+		timer.Reset(time.Second)
+		if p.maxWorker.Load() >= p.worker.Load() {
 			return
 		}
 
-		p.stop <- true
+		select {
+		case p.stop <- true:
+		case <-timer.C:
+		}
 	}
 }
 
@@ -410,8 +416,6 @@ func (p *Pool) Close() {
 	log.Infof("close pool %s(%s)", p.name, p.id)
 	close(p.wait)
 	close(p.stop)
-
-	p.poolWait.Wait()
 
 	p.pool.freePool(p.id)
 }

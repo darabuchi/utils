@@ -1,12 +1,13 @@
 package gpool
 
 import (
-	"github.com/darabuchi/log"
-	"go.uber.org/atomic"
 	"math/rand"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/darabuchi/log"
+	"go.uber.org/atomic"
 )
 
 func TestNewSubPool(t *testing.T) {
@@ -102,4 +103,18 @@ func TestSubPool(t *testing.T) {
 
 	log.Infof("wait finish")
 	w.Wait()
+}
+
+func TestSetWorker(t *testing.T) {
+	p := NewPoolGlobalWithFunc("1", 3, func(i interface{}) {
+		time.Sleep(time.Second * 5)
+	})
+
+	p.Submit(nil)
+	p.Submit(nil)
+	p.Submit(nil)
+
+	p.Wait()
+
+	p.SetWorker(1)
 }
