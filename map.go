@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -476,9 +477,17 @@ func (p *Map) toString(val interface{}) string {
 	case uint64:
 		return fmt.Sprintf("%d", x)
 	case float32:
-		return fmt.Sprintf("%v", x)
+		if math.Floor(float64(x)) == float64(x) {
+			return fmt.Sprintf("%.0f", x)
+		}
+
+		return fmt.Sprintf("%f", x)
 	case float64:
-		return fmt.Sprintf("%v", x)
+		if math.Floor(x) == x {
+			return fmt.Sprintf("%.0f", x)
+		}
+
+		return fmt.Sprintf("%f", x)
 	case string:
 		return x
 	case []byte:
