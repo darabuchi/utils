@@ -287,6 +287,10 @@ func (p *Map) GetUint32(key string) uint32 {
 		return 0
 	}
 
+	return p.toUint32(val)
+}
+
+func (p *Map) toUint32(val interface{}) uint32 {
 	switch x := val.(type) {
 	case bool:
 		if x {
@@ -340,6 +344,10 @@ func (p *Map) GetUint64(key string) uint64 {
 		return 0
 	}
 
+	return p.toUint64(val)
+}
+
+func (p *Map) toUint64(val interface{}) uint64 {
 	switch x := val.(type) {
 	case bool:
 		if x {
@@ -590,6 +598,426 @@ func (p *Map) toMap(val interface{}) *Map {
 			return NewMap(nil)
 		}
 		return NewMap(m)
+	}
+}
+
+func (p *Map) GetSlice(key string) []interface{} {
+	val, err := p.get(key)
+	if err != nil {
+		return nil
+	}
+
+	switch x := val.(type) {
+	case []bool:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []int:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []int8:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []int16:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []int32:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []int64:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []uint:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []uint8:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []uint16:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []uint32:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []uint64:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []float32:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []float64:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []string:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case [][]byte:
+		var v []interface{}
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []interface{}:
+		return x
+	default:
+		return []interface{}{}
+	}
+}
+
+func (p *Map) GetStringSlice(key string) []string {
+	val, err := p.get(key)
+	if err != nil {
+		return nil
+	}
+
+	switch x := val.(type) {
+	case []bool:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []int:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []int8:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []int16:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []int32:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []int64:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []uint:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []uint8:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []uint16:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []uint32:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []uint64:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []float32:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []float64:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	case []string:
+		return x
+	case [][]byte:
+		var v []string
+		for _, val := range x {
+			v = append(v, string(val))
+		}
+		return v
+	case []interface{}:
+		var v []string
+		for _, val := range x {
+			v = append(v, p.toString(val))
+		}
+		return v
+	default:
+		return []string{}
+	}
+}
+
+func (p *Map) GetUint64Slice(key string) []uint64 {
+	val, err := p.get(key)
+	if err != nil {
+		return nil
+	}
+
+	switch x := val.(type) {
+	case []bool:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []int:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []int8:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []int16:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []int32:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []int64:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []uint:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []uint8:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []uint16:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []uint32:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []uint64:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []float32:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []float64:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []string:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case [][]byte:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	case []interface{}:
+		var v []uint64
+		for _, val := range x {
+			v = append(v, p.toUint64(val))
+		}
+		return v
+	default:
+		return []uint64{}
+	}
+}
+
+func (p *Map) GetUint32Slice(key string) []uint32 {
+	val, err := p.get(key)
+	if err != nil {
+		return nil
+	}
+
+	switch x := val.(type) {
+	case []bool:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []int:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []int8:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []int16:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []int32:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []int64:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []uint:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []uint8:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []uint16:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []uint32:
+		return x
+	case []uint64:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []float32:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []float64:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []string:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case [][]byte:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	case []interface{}:
+		var v []uint32
+		for _, val := range x {
+			v = append(v, p.toUint32(val))
+		}
+		return v
+	default:
+		return []uint32{}
 	}
 }
 
