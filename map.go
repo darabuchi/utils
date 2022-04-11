@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"go.uber.org/atomic"
+	"gopkg.in/yaml.v3"
 )
 
 type Map struct {
@@ -32,6 +33,37 @@ func NewMap(m map[string]interface{}) *Map {
 		m2.data.Store(k, v)
 	}
 	return m2
+}
+
+func NewMapWithJson(s []byte) (*Map, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(s, &m)
+	if err != nil {
+		return nil, err
+	}
+	return NewMap(m), nil
+}
+
+func NewMapWithYaml(s []byte) (*Map, error) {
+	var m map[string]interface{}
+	err := yaml.Unmarshal(s, &m)
+	if err != nil {
+		return nil, err
+	}
+	return NewMap(m), nil
+}
+
+func NewMapWithAny(s interface{}) (*Map, error) {
+	buf, err := json.Marshal(s)
+	if err != nil {
+		return nil, err
+	}
+	var m map[string]interface{}
+	err = yaml.Unmarshal(buf, &m)
+	if err != nil {
+		return nil, err
+	}
+	return NewMap(m), nil
 }
 
 func (p *Map) EnableCut(seq string) *Map {
