@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,6 +21,15 @@ type Map struct {
 
 var (
 	ErrNotFound = errors.New("not found")
+)
+
+type ValueType int
+
+const (
+	ValueUnknown ValueType = iota
+	ValueNumber
+	ValueString
+	ValueBool
 )
 
 func NewMap(m map[string]interface{}) *Map {
@@ -128,6 +136,21 @@ func (p *Map) get(key string) (interface{}, error) {
 	return nil, ErrNotFound
 }
 
+func CheckValueType(val interface{}) ValueType {
+	switch val.(type) {
+	case bool:
+		return ValueBool
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		return ValueNumber
+	case string, []byte:
+		return ValueString
+	default:
+		return ValueUnknown
+	}
+}
+
 func (p *Map) Exists(key string) bool {
 	if _, ok := p.data.Load(key); ok {
 		return true
@@ -172,6 +195,59 @@ func (p *Map) GetBool(key string) bool {
 		}
 	default:
 		return val == nil
+	}
+}
+
+func (p *Map) GetInt(key string) int {
+	val, err := p.get(key)
+	if err != nil {
+		return 0
+	}
+
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return x
+	case int8:
+		return int(x)
+	case int16:
+		return int(x)
+	case int32:
+		return int(x)
+	case int64:
+		return int(x)
+	case uint:
+		return int(x)
+	case uint8:
+		return int(x)
+	case uint16:
+		return int(x)
+	case uint32:
+		return int(x)
+	case uint64:
+		return int(x)
+	case float32:
+		return int(x)
+	case float64:
+		return int(x)
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int(val)
+	case []byte:
+		val, err := strconv.ParseUint(string(x), 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int(val)
+	default:
+		return 0
 	}
 }
 
@@ -454,55 +530,7 @@ func (p *Map) GetString(key string) string {
 		return ""
 	}
 
-	return p.toString(val)
-}
-
-func (p *Map) toString(val interface{}) string {
-	switch x := val.(type) {
-	case bool:
-		if x {
-			return "1"
-		}
-		return "0"
-	case int:
-		return fmt.Sprintf("%d", x)
-	case int8:
-		return fmt.Sprintf("%d", x)
-	case int16:
-		return fmt.Sprintf("%d", x)
-	case int32:
-		return fmt.Sprintf("%d", x)
-	case int64:
-		return fmt.Sprintf("%d", x)
-	case uint:
-		return fmt.Sprintf("%d", x)
-	case uint8:
-		return fmt.Sprintf("%d", x)
-	case uint16:
-		return fmt.Sprintf("%d", x)
-	case uint32:
-		return fmt.Sprintf("%d", x)
-	case uint64:
-		return fmt.Sprintf("%d", x)
-	case float32:
-		if math.Floor(float64(x)) == float64(x) {
-			return fmt.Sprintf("%.0f", x)
-		}
-
-		return fmt.Sprintf("%f", x)
-	case float64:
-		if math.Floor(x) == x {
-			return fmt.Sprintf("%.0f", x)
-		}
-
-		return fmt.Sprintf("%f", x)
-	case string:
-		return x
-	case []byte:
-		return string(x)
-	default:
-		return ""
-	}
+	return ToString(val)
 }
 
 func (p *Map) GetBytes(key string) []byte {
@@ -584,7 +612,7 @@ func (p *Map) toMap(val interface{}) *Map {
 	case map[interface{}]interface{}:
 		m := NewMap(nil)
 		for k, v := range x {
-			m.Set(p.toString(k), v)
+			m.Set(ToString(k), v)
 		}
 		return m
 	default:
@@ -715,79 +743,79 @@ func (p *Map) GetStringSlice(key string) []string {
 	case []bool:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []int:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []int8:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []int16:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []int32:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []int64:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []uint:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []uint8:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []uint16:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []uint32:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []uint64:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []float32:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []float64:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	case []string:
@@ -801,7 +829,7 @@ func (p *Map) GetStringSlice(key string) []string {
 	case []interface{}:
 		var v []string
 		for _, val := range x {
-			v = append(v, p.toString(val))
+			v = append(v, ToString(val))
 		}
 		return v
 	default:
