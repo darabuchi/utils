@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 )
@@ -48,7 +49,14 @@ func ToString(val interface{}) string {
 		return x
 	case []byte:
 		return string(x)
-	default:
+	case nil:
 		return ""
+	default:
+		buf, err := json.Marshal(x)
+		if err != nil {
+			return ""
+		}
+
+		return string(buf)
 	}
 }

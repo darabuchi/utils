@@ -13,12 +13,14 @@ import (
 )
 
 type Pool struct {
+	log *log.Logger
+
 	id   string
 	name string
 
 	defLogic Logic
 
-	pool     *workPool
+	pool     *WorkPool
 	workLock sync.Mutex
 	dataLock sync.RWMutex
 
@@ -36,8 +38,9 @@ type Pool struct {
 	avgTime  ewma.MovingAverage
 }
 
-func newPool(name string, id string, pool *workPool) *Pool {
+func newPool(name string, id string, pool *WorkPool) *Pool {
 	return &Pool{
+		log:       pool.log,
 		id:        id,
 		pool:      pool,
 		maxWorker: atomic.NewUint32(3),
@@ -108,7 +111,7 @@ func (p *Pool) run() {
 		}
 
 		if i.logic == nil {
-			log.Error("logic is empty")
+			p.log.Error("logic is empty")
 			return
 		}
 
@@ -123,11 +126,11 @@ func (p *Pool) run() {
 		log.SetTrace(traceId)
 		defer log.DelTrace()
 
-		log.Infof("new worker start %s(%s)", p.name, p.id)
+		p.log.Infof("new worker start %s(%s)", p.name, p.id)
 		defer func() {
 			p.worker.Dec()
 			p.pool.freeWorker()
-			log.Warnf("%s(%s) worker is exist,work:%d|max:%d|wait:%d", p.name, p.id, p.worker.Load(), p.maxWorker.Load(), len(p.wait))
+			p.log.Warnf("%s(%s) worker is exist,work:%d|max:%d|wait:%d", p.name, p.id, p.worker.Load(), p.maxWorker.Load(), len(p.wait))
 		}()
 		defer utils.CachePanic()
 
@@ -138,7 +141,7 @@ func (p *Pool) run() {
 			select {
 			case i, ok := <-p.wait:
 				if !ok {
-					log.Warnf("%s(%s) pool is closed,free resource", p.name, p.id)
+					p.log.Warnf("%s(%s) pool is closed,free resource", p.name, p.id)
 					return
 				}
 
@@ -150,19 +153,19 @@ func (p *Pool) run() {
 				freeTicker.Reset(time.Second * 30)
 			case <-time.After(time.Second * 3):
 				if len(p.wait) == 0 {
-					log.Warnf("%s(%s) without wait task,free resource", p.name, p.id)
+					p.log.Warnf("%s(%s) without wait task,free resource", p.name, p.id)
 					return
 				}
-				// log.Infof("wait timeout,free resource for %s(%s)", p.name, p.id)
-				log.Infof("%s(%s) worker is still alive,work:%d|max:%d|wait:%d", p.name, p.id, p.worker.Load(), p.maxWorker.Load(), len(p.wait))
+				// p.log.Infof("wait timeout,free resource for %s(%s)", p.name, p.id)
+				p.log.Infof("%s(%s) worker is still alive,work:%d|max:%d|wait:%d", p.name, p.id, p.worker.Load(), p.maxWorker.Load(), len(p.wait))
 			case <-freeTicker.C:
-				log.Warnf("wait timeout,free resource for %s(%s)", p.name, p.id)
+				p.log.Warnf("wait timeout,free resource for %s(%s)", p.name, p.id)
 				return
 			case <-p.stop:
-				log.Warnf("stop worker for %s(%s)", p.name, p.id)
+				p.log.Warnf("stop worker for %s(%s)", p.name, p.id)
 				return
 			case <-sign:
-				log.Warnf("exist worker for %s(%s)", p.name, p.id)
+				p.log.Warnf("exist worker for %s(%s)", p.name, p.id)
 				return
 			}
 		}
@@ -178,13 +181,13 @@ func (p *Pool) tryApply() bool {
 	}
 
 	if !p.pool.applyWorker() {
-		log.Infof("%s(%s) apply resource fail", p.name, p.id)
+		p.log.Infof("%s(%s) apply resource fail", p.name, p.id)
 		// 申请资源失败，退出
 		return false
 	}
 
 	// 申请成功了
-	log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
+	p.log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
 
 	p.run()
 	return true
@@ -200,13 +203,13 @@ func (p *Pool) applyForce() {
 	}
 
 	if !p.pool.applyWorkerForce() {
-		log.Infof("%s(%s) apply resource fail", p.name, p.id)
+		p.log.Infof("%s(%s) apply resource fail", p.name, p.id)
 		// 申请资源失败，退出
 		return
 	}
 
 	// 申请成功了
-	log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
+	p.log.Infof("%s(%s) has %d worker pool", p.name, p.id, p.worker.Inc())
 
 	p.run()
 }
@@ -214,9 +217,9 @@ func (p *Pool) applyForce() {
 func (p *Pool) free() {
 	select {
 	case p.stop <- true:
-		log.Warnf("%s(%s) notify stop", p.name, p.id)
+		p.log.Warnf("%s(%s) notify stop", p.name, p.id)
 	case <-time.After(time.Second * 5):
-		log.Warnf("%s(%s) notify stop timeout", p.name, p.id)
+		p.log.Warnf("%s(%s) notify stop timeout", p.name, p.id)
 	}
 }
 
@@ -286,7 +289,7 @@ func (p *Pool) needMoreFree() bool {
 
 func (p *Pool) needMoreWorkerWithoutLock() bool {
 	if p.worker.Load()+1 > p.maxWorker.Load() {
-		log.Debugf("%s(%s) pool is full, skip", p.name, p.id)
+		p.log.Debugf("%s(%s) pool is full, skip", p.name, p.id)
 		// 已经满了，退出
 		return false
 	}
@@ -296,7 +299,7 @@ func (p *Pool) needMoreWorkerWithoutLock() bool {
 	}
 
 	if uint32(len(p.wait)) < p.worker.Load() {
-		log.Debugf("%s(%s) still has resource, skip", p.name, p.id)
+		p.log.Debugf("%s(%s) still has resource, skip", p.name, p.id)
 		return false
 	}
 
@@ -367,7 +370,7 @@ func (p *Pool) SubmitWithTimeout(i interface{}, timeout time.Duration) {
 		select {
 		case <-done:
 		case <-time.After(timeout):
-			log.Infof("timeout, skip")
+			p.log.Infof("timeout, skip")
 		}
 	})
 }
@@ -381,7 +384,7 @@ func (p *Pool) SubmitWait(i interface{}) {
 }
 
 func (p *Pool) SubmitWithFunc(i interface{}, logic Logic) {
-	log.Infof("submit task for %s(%s)", p.name, p.id)
+	p.log.Infof("submit task for %s(%s)", p.name, p.id)
 
 	defer utils.CachePanic()
 
@@ -412,8 +415,18 @@ func (p *Pool) Wait() {
 	p.taskWait.Wait()
 }
 
+func (p *Pool) WaitChan() chan bool {
+	c := make(chan bool)
+	go func() {
+		defer close(c)
+		p.Wait()
+		c <- true
+	}()
+	return c
+}
+
 func (p *Pool) Close() {
-	log.Infof("close pool %s(%s)", p.name, p.id)
+	p.log.Infof("close pool %s(%s)", p.name, p.id)
 	close(p.wait)
 	close(p.stop)
 

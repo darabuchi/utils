@@ -2,6 +2,7 @@ package gpool
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"sync"
 	"time"
@@ -13,7 +14,9 @@ import (
 
 type Logic func(i interface{})
 
-type workPool struct {
+type WorkPool struct {
+	log *log.Logger
+
 	defaultLogic Logic
 
 	workerLock, poolLock sync.RWMutex
@@ -32,8 +35,9 @@ type poolQueue struct {
 	traceId string
 }
 
-func NewPool(maxWorker int) *workPool {
-	p := &workPool{
+func NewPool(maxWorker int) *WorkPool {
+	p := &WorkPool{
+		log:       log.Clone(),
 		maxWorker: atomic.NewUint32(uint32(maxWorker)),
 		poolMap:   map[string]*Pool{},
 		worker:    atomic.NewUint32(0),
@@ -66,7 +70,7 @@ func NewPool(maxWorker int) *workPool {
 				p.checkPools()
 
 			case <-sign:
-				log.Info("exist pool")
+				p.log.Info("exist pool")
 				return
 			}
 		}
@@ -75,7 +79,12 @@ func NewPool(maxWorker int) *workPool {
 	return p
 }
 
-func (p *workPool) checkPools() {
+func (p *WorkPool) SetLogger(l *log.Logger) *WorkPool {
+	p.log = l
+	return p
+}
+
+func (p *WorkPool) checkPools() {
 	poolMap := p.clonePool()
 	var totalTask uint64
 	for _, w := range poolMap {
@@ -89,7 +98,7 @@ func (p *workPool) checkPools() {
 		}
 
 		if w.needMoreWorker() {
-			log.Infof("%s(%s) need new worker", w.name, w.id)
+			p.log.Infof("%s(%s) need new worker", w.name, w.id)
 			// 申请失败，并且需要强制申请
 			if !w.tryApply() && w.needMoreWorkerForce() {
 				w.applyForce()
@@ -102,19 +111,20 @@ func (p *workPool) checkPools() {
 			}
 		}
 
-		log.Infof("%s(%s) worker:%d|max:%d|task total:%d|wait:%d",
+		p.log.Infof("%s(%s) worker:%d|max:%d|task total:%d|wait:%d",
 			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), len(w.wait))
 		totalTask += w.taskTotal.Load()
 	}
 
-	log.Infof("worker pool:%d|worker:%d|max:%d|total:%d", len(poolMap), p.worker.Load(), p.maxWorker.Load(), totalTask)
+	p.log.Infof("worker pool:%d|worker:%d|max:%d|total:%d", len(poolMap), p.worker.Load(), p.maxWorker.Load(), totalTask)
 }
 
-func (p *workPool) SetMaxWorker(worker int) {
+func (p *WorkPool) SetMaxWorker(worker int) *WorkPool {
 	p.maxWorker.Store(uint32(worker))
+	return p
 }
 
-func (p *workPool) clonePool() []*Pool {
+func (p *WorkPool) clonePool() []*Pool {
 	var l []*Pool
 
 	p.poolLock.RLock()
@@ -126,11 +136,11 @@ func (p *workPool) clonePool() []*Pool {
 	return l
 }
 
-func (p *workPool) NewPool(name string, work int) *Pool {
+func (p *WorkPool) NewPool(name string, work int) *Pool {
 	return p.NewPoolWithFunc(name, work, nil)
 }
 
-func (p *workPool) NewPoolWithFunc(name string, work int, logic Logic) *Pool {
+func (p *WorkPool) NewPoolWithFunc(name string, work int, logic Logic) *Pool {
 	id := log.GenTraceId()
 
 	pool := newPool(name, id, p)
@@ -141,18 +151,18 @@ func (p *workPool) NewPoolWithFunc(name string, work int, logic Logic) *Pool {
 	p.poolMap[id] = pool
 	p.poolLock.Unlock()
 
-	log.Infof("new pool %s(%s)", name, id)
+	p.log.Infof("new pool %s(%s)", name, id)
 
 	return pool
 }
 
-func (p *workPool) freePool(id string) {
+func (p *WorkPool) freePool(id string) {
 	p.poolLock.Lock()
 	delete(p.poolMap, id)
 	p.poolLock.Unlock()
 }
 
-func (p *workPool) applyWorker() bool {
+func (p *WorkPool) applyWorker() bool {
 	p.workerLock.Lock()
 	defer p.workerLock.Unlock()
 
@@ -160,12 +170,12 @@ func (p *workPool) applyWorker() bool {
 		return false
 	}
 
-	log.Infof("now has %d worker pool", p.worker.Inc())
+	p.log.Infof("now has %d worker pool", p.worker.Inc())
 
 	return true
 }
 
-func (p *workPool) applyWorkerForce() bool {
+func (p *WorkPool) applyWorkerForce() bool {
 	p.workerLock.Lock()
 	defer p.workerLock.Unlock()
 
@@ -173,22 +183,22 @@ func (p *workPool) applyWorkerForce() bool {
 		return false
 	}
 
-	log.Infof("(force)now has %d worker pool", p.worker.Inc())
+	p.log.Infof("(force)now has %d worker pool", p.worker.Inc())
 
 	return true
 }
 
-func (p *workPool) freeWorker() {
+func (p *WorkPool) freeWorker() {
 	p.worker.Dec()
 }
 
-func (p *workPool) LoadTotal() uint64 {
+func (p *WorkPool) LoadTotal() uint64 {
 	var total uint64
 	for _, w := range p.clonePool() {
 		if w == nil {
 			continue
 		}
-		log.Infof("%s(%s) worker:%d|max:%d|total:%d|wait:%d",
+		p.log.Infof("%s(%s) worker:%d|max:%d|total:%d|wait:%d",
 			w.name, w.id, w.worker.Load(), w.maxWorker.Load(), w.taskTotal.Load(), len(w.wait))
 		total += w.taskTotal.Load()
 	}
@@ -196,23 +206,23 @@ func (p *workPool) LoadTotal() uint64 {
 	return total
 }
 
-func (p *workPool) Close() {
+func (p *WorkPool) Close() {
 	for _, w := range p.clonePool() {
 		if w == nil {
 			continue
 		}
-		log.Infof("close pool %s(%s)", w.name, w.id)
+		p.log.Infof("close pool %s(%s)", w.name, w.id)
 		w.Close()
 	}
 
 	close(p.subWorkerCloseChan)
 }
 
-func (p *workPool) onWorkerFree() {
+func (p *WorkPool) onWorkerFree() {
 	p.subWorkerCloseChan <- true
 }
 
-func (p *workPool) Statistics() Statistics {
+func (p *WorkPool) Statistics() Statistics {
 	statistics := Statistics{
 		WorkStatisticsMap: map[string]*WorkStatistics{},
 	}
@@ -238,10 +248,11 @@ func (p *workPool) Statistics() Statistics {
 	return statistics
 }
 
-var _pool *workPool
+var _pool *WorkPool
 
 func init() {
 	_pool = NewPool(32)
+	_pool.SetLogger(log.Clone().SetOutput(ioutil.Discard))
 }
 
 func NewPoolGlobal(name string, work int) *Pool {
@@ -262,4 +273,8 @@ func SetPoolGlobalMaxWorker(worker int) {
 
 func PoolGlobalStatistics() Statistics {
 	return _pool.Statistics()
+}
+
+func DisablePoolGlobal() {
+	_pool.Close()
 }
