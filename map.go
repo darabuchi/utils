@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -164,38 +163,7 @@ func (p *Map) GetBool(key string) bool {
 		return false
 	}
 
-	switch x := val.(type) {
-	case bool:
-		return x
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64,
-		float32, float64:
-		return x != 0
-	case string:
-		switch strings.ToLower(x) {
-		case "true", "1":
-			return true
-		case "false", "0":
-			return false
-		case "":
-			return false
-		default:
-			return true
-		}
-	case []byte:
-		switch string(bytes.ToLower(x)) {
-		case "true", "1":
-			return true
-		case "false", "0":
-			return false
-		case "":
-			return false
-		default:
-			return true
-		}
-	default:
-		return val == nil
-	}
+	return ToBool(val)
 }
 
 func (p *Map) GetInt(key string) int {
@@ -204,51 +172,7 @@ func (p *Map) GetInt(key string) int {
 		return 0
 	}
 
-	switch x := val.(type) {
-	case bool:
-		if x {
-			return 1
-		}
-		return 0
-	case int:
-		return x
-	case int8:
-		return int(x)
-	case int16:
-		return int(x)
-	case int32:
-		return int(x)
-	case int64:
-		return int(x)
-	case uint:
-		return int(x)
-	case uint8:
-		return int(x)
-	case uint16:
-		return int(x)
-	case uint32:
-		return int(x)
-	case uint64:
-		return int(x)
-	case float32:
-		return int(x)
-	case float64:
-		return int(x)
-	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
-		if err != nil {
-			return 0
-		}
-		return int(val)
-	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
-		if err != nil {
-			return 0
-		}
-		return int(val)
-	default:
-		return 0
-	}
+	return ToInt(val)
 }
 
 func (p *Map) GetInt32(key string) int32 {
