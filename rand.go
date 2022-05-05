@@ -9,12 +9,16 @@ var (
 	UpperLetterRunes = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	NumberRunes      = []rune("0123456789")
 
-	LetterRunes []rune
+	LetterRunes          []rune
+	LetterAndNumberRules []rune
 )
 
 func init() {
 	LetterRunes = append(LetterRunes, LowerLetterRunes...)
 	LetterRunes = append(LetterRunes, UpperLetterRunes...)
+
+	LetterAndNumberRules = append(LetterAndNumberRules, LetterRunes...)
+	LetterAndNumberRules = append(LetterAndNumberRules, NumberRunes...)
 }
 
 func RandStringLetter(n int) string {
