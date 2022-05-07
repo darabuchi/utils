@@ -1,9 +1,10 @@
 package utils
 
 import (
-	log "github.com/sirupsen/logrus"
 	"runtime/debug"
 	"strings"
+
+	"github.com/darabuchi/log"
 )
 
 func CachePanic() {
