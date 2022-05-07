@@ -11,7 +11,7 @@ const (
 	Hour        = time.Hour
 
 	Day     = time.Hour * 24
-	WorkDay = time.Hour * 10
+	WorkDay = time.Hour * 12
 	RestDay = Day - WorkDay
 
 	Week     = Day * 7
