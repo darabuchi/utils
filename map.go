@@ -869,6 +869,15 @@ func (p *Map) GetUint64Slice(key string) []uint64 {
 	}
 }
 
+func (p *Map) GetInt64Slice(key string) []int64 {
+	val, err := p.get(key)
+	if err != nil {
+		return nil
+	}
+
+	return ToInt64Slice(val)
+}
+
 func (p *Map) GetUint32Slice(key string) []uint32 {
 	val, err := p.get(key)
 	if err != nil {

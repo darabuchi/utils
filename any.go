@@ -112,6 +112,54 @@ func ToInt(val interface{}) int {
 	}
 }
 
+func ToInt64(val interface{}) int64 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return int64(x)
+	case int8:
+		return int64(x)
+	case int16:
+		return int64(x)
+	case int32:
+		return int64(x)
+	case int64:
+		return x
+	case uint:
+		return int64(x)
+	case uint8:
+		return int64(x)
+	case uint16:
+		return int64(x)
+	case uint32:
+		return int64(x)
+	case uint64:
+		return int64(x)
+	case float32:
+		return int64(x)
+	case float64:
+		return int64(x)
+	case string:
+		val, err := strconv.ParseInt(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return val
+	case []byte:
+		val, err := strconv.ParseInt(string(x), 10, 16)
+		if err != nil {
+			return 0
+		}
+		return val
+	default:
+		return 0
+	}
+}
+
 func ToBool(val interface{}) bool {
 	switch x := val.(type) {
 	case bool:
@@ -144,5 +192,108 @@ func ToBool(val interface{}) bool {
 		}
 	default:
 		return val == nil
+	}
+}
+
+func ToInt64Slice(val interface{}) []int64 {
+	switch x := val.(type) {
+	case []bool:
+		var v []int64
+		for _, val := range x {
+			v = append(v, ToInt64(val))
+		}
+		return v
+	case []int:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []int8:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []int16:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []int32:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []int64:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []uint:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []uint8:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []uint16:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []uint32:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []uint64:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []float32:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []float64:
+		var v []int64
+		for _, val := range x {
+			v = append(v, int64(val))
+		}
+		return v
+	case []string:
+		var v []int64
+		for _, val := range x {
+			v = append(v, ToInt64(val))
+		}
+		return v
+	case [][]byte:
+		var v []int64
+		for _, val := range x {
+			v = append(v, ToInt64(val))
+		}
+		return v
+	case []interface{}:
+		var v []int64
+		for _, val := range x {
+			v = append(v, ToInt64(val))
+		}
+		return v
+	default:
+		return []int64{}
 	}
 }
