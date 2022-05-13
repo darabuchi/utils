@@ -8,7 +8,9 @@ const (
 	Millisecond = time.Millisecond
 	Second      = time.Second
 	Minute      = time.Minute
+	HalfHour    = time.Minute * 30
 	Hour        = time.Hour
+	HalfDay     = time.Hour * 12
 	Day         = time.Hour * 24
 	Week        = Day * 7
 	Month       = Day * 30

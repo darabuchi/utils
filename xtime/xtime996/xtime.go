@@ -8,6 +8,7 @@ const (
 	Millisecond = time.Millisecond
 	Second      = time.Second
 	Minute      = time.Minute
+	HalfHour    = time.Minute * 30
 	Hour        = time.Hour
 
 	Day     = time.Hour * 24

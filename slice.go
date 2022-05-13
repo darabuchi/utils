@@ -50,6 +50,51 @@ func PluckUint64(list interface{}, fieldName string) []uint64 {
 	}
 }
 
+func PluckString(list interface{}, fieldName string) []string {
+	v := reflect.ValueOf(list)
+	switch v.Kind() {
+	case reflect.Array, reflect.Slice:
+		var result []string
+		for i := 0; i < v.Len(); i++ {
+			ev := v.Index(i)
+
+			for ev.Kind() == reflect.Ptr {
+				ev = ev.Elem()
+			}
+
+			if ev.Kind() != reflect.Struct {
+				panic("element is not a struct")
+			}
+
+			if !ev.IsValid() {
+				continue
+			}
+
+			et := ev.Type()
+			_, ok := et.FieldByName(fieldName)
+			if !ok {
+				panic(fmt.Sprintf("field %s not found", fieldName))
+			}
+
+			field := ev.FieldByName(fieldName)
+			if !field.IsValid() {
+				continue
+			}
+
+			if field.Kind() != reflect.String {
+				panic(fmt.Sprintf("field %s is not uint64", fieldName))
+			}
+
+			result = append(result, field.String())
+		}
+
+		return result
+
+	default:
+		panic("list must be an array or slice")
+	}
+}
+
 // DiffSlice 传入两个slice
 // 如果 a 或者 b 不为 slice 会 panic
 // 如果 a 与 b 的元素类型不一致，也会 panic
