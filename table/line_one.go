@@ -3,30 +3,40 @@ package table
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"strings"
 
 	"github.com/darabuchi/log"
-	"github.com/wcharczuk/go-chart/v2"
+	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
 type LineOne struct {
 	text string
 
-	fontSize int32
+	fontSize float64
 
 	size *Size
+
+	fgColor, bgColor color.Color
 }
 
-func (p *LineOne) DrawImg(x, y int32, img *image.RGBA) error {
+func (p *LineOne) DrawImg(x, y float64, img *image.RGBA) error {
 	lines := strings.Split(p.text, "\n")
 
-	for _, line := range lines {
-		size, err := DrawFont(img, image.NewUniform(chart.ColorBlack), x, y, line, p.fontSize)
+	size := p.Size()
+
+	for idx, line := range lines {
+		log.Debugf("line:%v,text:%v,x:%.2f,y:%.2f", idx, line, x, y)
+		fs := TextSize(line, p.fontSize)
+		s := p.Size()
+
+		DrawRectangleColor(img, p.bgColor, x, y, s.Width, s.Height)
+
+		size, err := DrawFont(img, image.NewUniform(p.fgColor), x+(size.Width-fs.Width)/2, y, line, p.fontSize)
 		if err != nil {
 			log.Errorf("err:%v", err)
 			return err
 		}
-
 		x += size.Height
 	}
 
@@ -65,11 +75,30 @@ func (p *LineOne) Size() *Size {
 
 func NewLine() *LineOne {
 	return &LineOne{
-		fontSize: 18,
+		text:     "",
+		fontSize: defaultFontSize,
+		size:     nil,
+		fgColor:  drawing.ColorBlack,
+		bgColor:  drawing.ColorWhite,
 	}
 }
 
 func (p *LineOne) SetText(format string, a ...interface{}) *LineOne {
 	p.text = strings.ReplaceAll(fmt.Sprintf(format, a...), "\t", "    ")
+	return p
+}
+
+func (p *LineOne) SetFontSize(fontSize float64) *LineOne {
+	p.fontSize = fontSize
+	return p
+}
+
+func (p *LineOne) SetFgColor(color color.Color) *LineOne {
+	p.fgColor = color
+	return p
+}
+
+func (p *LineOne) SetBgColor(color color.Color) *LineOne {
+	p.bgColor = color
 	return p
 }

@@ -15,6 +15,10 @@ var fontBuf []byte
 
 var _font *truetype.Font
 
+const (
+	defaultFontSize = 18
+)
+
 func init() {
 	var err error
 	_font, err = freetype.ParseFont(fontBuf)
@@ -28,25 +32,25 @@ func SetFont(f *truetype.Font) {
 	_font = f
 }
 
-func TextSize(label string, fontSize int32) *Size {
-	return NewSize(fontSize*2, fontSize*2*int32(len([]rune(label))))
+func TextSize(label string, fontSize float64) *Size {
+	return NewSize(fontSize*2*float64(len([]rune(label))), (fontSize+float64(int64(fontSize)>>6))*2)
 }
 
-func DrawFont(dst *image.RGBA, src image.Image, x, y int32, label string, fontSize int32) (*Size, error) {
+func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) (*Size, error) {
 	c := freetype.NewContext()
 	c.SetFont(_font)
-	c.SetFontSize(float64(fontSize))
+	c.SetFontSize(fontSize)
 	c.SetClip(dst.Bounds())
 	c.SetDst(dst)
 	c.SetDPI(144)
 	c.SetSrc(src)
 	c.SetHinting(font.HintingFull)
 
-	size, err := c.DrawString(label, freetype.Pt(int(x), int(y+fontSize)))
+	size, err := c.DrawString(label, freetype.Pt(int(x), int(y+fontSize*2)))
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return nil, err
 	}
 
-	return NewSize(int32(size.X), int32(size.Y)), nil
+	return NewSize(float64(size.X), float64(size.Y)), nil
 }
