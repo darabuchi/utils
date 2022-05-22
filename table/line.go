@@ -9,14 +9,16 @@ type Line interface {
 	MinSize() *Size
 	setSize(*Size)
 	Size() *Size
-	Cols() int32
 }
 
 type CellsLine interface {
 	Line
 	RangeCell(func(idx int, cell Cell) error) error
+	Cols() int32
 }
 
 type LineOne interface {
 	Line
+
+	IsFull() bool
 }

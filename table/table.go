@@ -106,7 +106,6 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 			s := line.MinSize()
 			s.Width = size.Width
 			line.setSize(NewSize(s.Width, s.Height))
-
 		case CellsLine:
 			err := x.RangeCell(func(colIdx int, cell Cell) error {
 				cell.setSize(NewSize(colWidthMap[colIdx], rowHightMap[rowIdx]))
