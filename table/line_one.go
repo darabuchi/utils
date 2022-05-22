@@ -10,7 +10,7 @@ import (
 	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
-type LineOne struct {
+type LineText struct {
 	text string
 
 	fontSize float64
@@ -20,7 +20,7 @@ type LineOne struct {
 	fgColor, bgColor color.Color
 }
 
-func (p *LineOne) DrawImg(x, y float64, img *image.RGBA) error {
+func (p *LineText) DrawImg(x, y float64, img *image.RGBA) error {
 	lines := strings.Split(p.text, "\n")
 
 	size := p.Size()
@@ -43,11 +43,11 @@ func (p *LineOne) DrawImg(x, y float64, img *image.RGBA) error {
 	return nil
 }
 
-func (p *LineOne) Cols() int32 {
+func (p *LineText) Cols() int32 {
 	return 1
 }
 
-func (p *LineOne) MinSize() *Size {
+func (p *LineText) MinSize() *Size {
 	lines := strings.Split(p.text, "\n")
 	size := NewSize(0, 0)
 
@@ -62,19 +62,19 @@ func (p *LineOne) MinSize() *Size {
 	return size
 }
 
-func (p *LineOne) setSize(size *Size) {
+func (p *LineText) setSize(size *Size) {
 	p.size = size
 }
 
-func (p *LineOne) Size() *Size {
+func (p *LineText) Size() *Size {
 	if p.size != nil {
 		return p.size
 	}
 	return p.MinSize()
 }
 
-func NewLine() *LineOne {
-	return &LineOne{
+func NewLineText() *LineText {
+	return &LineText{
 		text:     "",
 		fontSize: defaultFontSize,
 		size:     nil,
@@ -83,22 +83,22 @@ func NewLine() *LineOne {
 	}
 }
 
-func (p *LineOne) SetText(format string, a ...interface{}) *LineOne {
+func (p *LineText) SetText(format string, a ...interface{}) *LineText {
 	p.text = strings.ReplaceAll(fmt.Sprintf(format, a...), "\t", "    ")
 	return p
 }
 
-func (p *LineOne) SetFontSize(fontSize float64) *LineOne {
+func (p *LineText) SetFontSize(fontSize float64) *LineText {
 	p.fontSize = fontSize
 	return p
 }
 
-func (p *LineOne) SetFgColor(color color.Color) *LineOne {
+func (p *LineText) SetFgColor(color color.Color) *LineText {
 	p.fgColor = color
 	return p
 }
 
-func (p *LineOne) SetBgColor(color color.Color) *LineOne {
+func (p *LineText) SetBgColor(color color.Color) *LineText {
 	p.bgColor = color
 	return p
 }

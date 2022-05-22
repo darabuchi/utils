@@ -102,7 +102,7 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 
 	for rowIdx, line := range p.lines {
 		switch x := line.(type) {
-		case *LineOne:
+		case LineOne:
 			s := line.MinSize()
 			s.Width = size.Width
 			line.setSize(NewSize(s.Width, s.Height))

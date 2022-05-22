@@ -14,7 +14,7 @@ func TestTable(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 	tb := table.NewTable().
 		AddLine(
-			table.NewLine().
+			table.NewLineText().
 				SetText("这是一行").
 				SetFontSize(25).
 				SetFgColor(drawing.ColorGreen).

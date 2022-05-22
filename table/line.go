@@ -16,3 +16,7 @@ type CellsLine interface {
 	Line
 	RangeCell(func(idx int, cell Cell) error) error
 }
+
+type LineOne interface {
+	Line
+}
