@@ -15,7 +15,7 @@ func TestTable(t *testing.T) {
 	tb := table.NewTable().
 		AddLine(
 			table.NewLineText().
-				SetText("这\n是\n一\n行").
+				SetText("这行asdfg").
 				SetFontSize(35).
 				SetAlignment(1).
 				SetFgColor(drawing.ColorGreen).

@@ -3,6 +3,7 @@ package table
 import (
 	_ "embed"
 	"image"
+	"unicode"
 
 	"github.com/darabuchi/log"
 	"github.com/golang/freetype"
@@ -33,7 +34,18 @@ func SetFont(f *truetype.Font) {
 }
 
 func TextSize(label string, fontSize float64) *Size {
-	return NewSize(fontSize*2*float64(len([]rune(label))), (fontSize+float64(int64(fontSize)>>6))*2)
+	return NewSize(fontSize*2*FontLen(label), (fontSize+float64(int64(fontSize)>>6))*2)
+}
+
+func FontLen(str string) float64 {
+	var count float64
+	for _, v := range str {
+		count++
+		if unicode.Is(unicode.Han, v) {
+			count++
+		}
+	}
+	return count / 2
 }
 
 func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) (*Size, error) {
