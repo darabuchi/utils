@@ -16,8 +16,8 @@ func TestTable(t *testing.T) {
 		AddLine(
 			table.NewLineText().
 				SetText("这是一行").
-				SetFontSize(25).
-				// SetAlignment(2).
+				SetFontSize(35).
+				SetAlignment(1).
 				SetFgColor(drawing.ColorGreen).
 				SetBgColor(drawing.ColorBlue),
 			table.NewRows().
