@@ -33,13 +33,11 @@ func (p *LineTxt) DrawImg(x, y float64, img *image.RGBA) error {
 	lines := strings.Split(p.text, "\n")
 
 	size := p.Size()
+	DrawRectangleColor(img, p.bgColor, x, y, size.Width, size.Height)
 
 	for idx, line := range lines {
 		log.Debugf("line:%v,text:%v,x:%.2f,y:%.2f", idx, line, x, y)
 		fs := TextSize(line, p.fontSize)
-		s := p.Size()
-
-		DrawRectangleColor(img, p.bgColor, x, y, s.Width, s.Height)
 
 		switch p.alignment {
 		case AlignCenter:
@@ -62,7 +60,7 @@ func (p *LineTxt) DrawImg(x, y float64, img *image.RGBA) error {
 			}
 		}
 
-		x += s.Height
+		y += fs.Height
 	}
 
 	return nil
