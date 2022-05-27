@@ -193,7 +193,26 @@ func KeyBy(list interface{}, fieldName string) interface{} {
 		panic("list required slice or array type")
 	}
 	
-	var m reflect.Value
+	ev := lv.Type().Elem()
+	evs := ev
+	for evs.Kind() == reflect.Ptr {
+		evs = evs.Elem()
+	}
+	
+	if evs.Kind() != reflect.Struct {
+		panic("list element is not struct")
+	}
+	
+	if evs.Kind() != reflect.Struct {
+		panic("element not struct")
+	}
+	
+	field, ok := evs.FieldByName(fieldName)
+	if !ok {
+		panic(fmt.Sprintf("field %s not found", fieldName))
+	}
+	
+	m := reflect.MakeMapWithSize(reflect.MapOf(field.Type, ev), lv.Len())
 	for i := 0; i < lv.Len(); i++ {
 		elem := lv.Index(i)
 		elemStruct := elem
@@ -210,12 +229,7 @@ func KeyBy(list interface{}, fieldName string) interface{} {
 			panic("element not struct")
 		}
 		
-		f := elemStruct.FieldByName(fieldName)
-		if !m.IsValid() {
-			m = reflect.MakeMapWithSize(reflect.MapOf(f.Type(), elem.Type()), lv.Len())
-		}
-		
-		m.SetMapIndex(f, elem)
+		m.SetMapIndex(elemStruct.FieldByIndex(field.Index), elem)
 	}
 	
 	return m.Interface()
