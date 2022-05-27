@@ -203,10 +203,6 @@ func KeyBy(list interface{}, fieldName string) interface{} {
 		panic("list element is not struct")
 	}
 	
-	if evs.Kind() != reflect.Struct {
-		panic("element not struct")
-	}
-	
 	field, ok := evs.FieldByName(fieldName)
 	if !ok {
 		panic(fmt.Sprintf("field %s not found", fieldName))
