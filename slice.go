@@ -5,94 +5,69 @@ import (
 	"reflect"
 )
 
-func PluckUint64(list interface{}, fieldName string) []uint64 {
+func pluck(list interface{}, fieldName string, deferVal interface{}) interface{} {
 	v := reflect.ValueOf(list)
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
-		var result []uint64
+		if v.Len() == 0 {
+			return deferVal
+		}
+		
+		ev := v.Type().Elem()
+		evs := ev
+		for evs.Kind() == reflect.Ptr {
+			evs = evs.Elem()
+		}
+		
+		if evs.Kind() != reflect.Struct {
+			panic("list element is not struct")
+		}
+		
+		field, ok := evs.FieldByName(fieldName)
+		if !ok {
+			panic(fmt.Sprintf("field %s not found", fieldName))
+		}
+		
+		result := reflect.MakeSlice(reflect.SliceOf(field.Type), v.Len(), v.Len())
+		
 		for i := 0; i < v.Len(); i++ {
 			ev := v.Index(i)
-			
 			for ev.Kind() == reflect.Ptr {
 				ev = ev.Elem()
 			}
-			
 			if ev.Kind() != reflect.Struct {
 				panic("element is not a struct")
 			}
-			
 			if !ev.IsValid() {
 				continue
 			}
-			
-			et := ev.Type()
-			_, ok := et.FieldByName(fieldName)
-			if !ok {
-				panic(fmt.Sprintf("field %s not found", fieldName))
-			}
-			
-			field := ev.FieldByName(fieldName)
-			if !field.IsValid() {
-				continue
-			}
-			
-			if field.Kind() != reflect.Uint64 {
-				panic(fmt.Sprintf("field %s is not uint64", fieldName))
-			}
-			
-			result = append(result, field.Uint())
+			result.Index(i).Set(ev.FieldByIndex(field.Index))
 		}
 		
-		return result
-	
+		return result.Interface()
 	default:
 		panic("list must be an array or slice")
 	}
 }
 
+func PluckInt(list interface{}, fieldName string) []int {
+	return pluck(list, fieldName, []int{}).([]int)
+}
+
+func PluckInt32(list interface{}, fieldName string) []int32 {
+	return pluck(list, fieldName, []int32{}).([]int32)
+}
+
+func PluckUint32(list interface{}, fileName string) []uint32 {
+	return pluck(list, fileName, []uint32{}).([]uint32)
+}
+
+func PluckUint64(list interface{}, fieldName string) []uint64 {
+	return pluck(list, fieldName, []uint64{}).([]uint64)
+}
+
 func PluckString(list interface{}, fieldName string) []string {
-	v := reflect.ValueOf(list)
-	switch v.Kind() {
-	case reflect.Array, reflect.Slice:
-		var result []string
-		for i := 0; i < v.Len(); i++ {
-			ev := v.Index(i)
-			
-			for ev.Kind() == reflect.Ptr {
-				ev = ev.Elem()
-			}
-			
-			if ev.Kind() != reflect.Struct {
-				panic("element is not a struct")
-			}
-			
-			if !ev.IsValid() {
-				continue
-			}
-			
-			et := ev.Type()
-			_, ok := et.FieldByName(fieldName)
-			if !ok {
-				panic(fmt.Sprintf("field %s not found", fieldName))
-			}
-			
-			field := ev.FieldByName(fieldName)
-			if !field.IsValid() {
-				continue
-			}
-			
-			if field.Kind() != reflect.String {
-				panic(fmt.Sprintf("field %s is not uint64", fieldName))
-			}
-			
-			result = append(result, field.String())
-		}
-		
-		return result
-	
-	default:
-		panic("list must be an array or slice")
-	}
+	return pluck(list, fieldName, []string{}).([]string)
 }
 
 // DiffSlice 传入两个slice
