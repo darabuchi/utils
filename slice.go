@@ -12,39 +12,39 @@ func PluckUint64(list interface{}, fieldName string) []uint64 {
 		var result []uint64
 		for i := 0; i < v.Len(); i++ {
 			ev := v.Index(i)
-
+			
 			for ev.Kind() == reflect.Ptr {
 				ev = ev.Elem()
 			}
-
+			
 			if ev.Kind() != reflect.Struct {
 				panic("element is not a struct")
 			}
-
+			
 			if !ev.IsValid() {
 				continue
 			}
-
+			
 			et := ev.Type()
 			_, ok := et.FieldByName(fieldName)
 			if !ok {
 				panic(fmt.Sprintf("field %s not found", fieldName))
 			}
-
+			
 			field := ev.FieldByName(fieldName)
 			if !field.IsValid() {
 				continue
 			}
-
+			
 			if field.Kind() != reflect.Uint64 {
 				panic(fmt.Sprintf("field %s is not uint64", fieldName))
 			}
-
+			
 			result = append(result, field.Uint())
 		}
-
+		
 		return result
-
+	
 	default:
 		panic("list must be an array or slice")
 	}
@@ -57,39 +57,39 @@ func PluckString(list interface{}, fieldName string) []string {
 		var result []string
 		for i := 0; i < v.Len(); i++ {
 			ev := v.Index(i)
-
+			
 			for ev.Kind() == reflect.Ptr {
 				ev = ev.Elem()
 			}
-
+			
 			if ev.Kind() != reflect.Struct {
 				panic("element is not a struct")
 			}
-
+			
 			if !ev.IsValid() {
 				continue
 			}
-
+			
 			et := ev.Type()
 			_, ok := et.FieldByName(fieldName)
 			if !ok {
 				panic(fmt.Sprintf("field %s not found", fieldName))
 			}
-
+			
 			field := ev.FieldByName(fieldName)
 			if !field.IsValid() {
 				continue
 			}
-
+			
 			if field.Kind() != reflect.String {
 				panic(fmt.Sprintf("field %s is not uint64", fieldName))
 			}
-
+			
 			result = append(result, field.String())
 		}
-
+		
 		return result
-
+	
 	default:
 		panic("list must be an array or slice")
 	}
@@ -105,26 +105,26 @@ func DiffSlice(a interface{}, b interface{}) (interface{}, interface{}) {
 	if at.Kind() != reflect.Slice {
 		panic("a is not slice")
 	}
-
+	
 	bt := reflect.TypeOf(b)
 	if bt.Kind() != reflect.Slice {
 		panic("b is not slice")
 	}
-
+	
 	atm := at.Elem()
 	btm := bt.Elem()
-
+	
 	if atm.Kind() != btm.Kind() {
 		panic("a and b are not same type")
 	}
-
+	
 	m := map[interface{}]reflect.Value{}
-
+	
 	bv := reflect.ValueOf(b)
 	for i := 0; i < bv.Len(); i++ {
 		m[bv.Index(i).Interface()] = bv.Index(i)
 	}
-
+	
 	c := reflect.MakeSlice(at, 0, 0)
 	d := reflect.MakeSlice(bt, 0, 0)
 	av := reflect.ValueOf(a)
@@ -135,11 +135,11 @@ func DiffSlice(a interface{}, b interface{}) (interface{}, interface{}) {
 			delete(m, av.Index(i).Interface())
 		}
 	}
-
+	
 	for _, value := range m {
 		d = reflect.Append(d, value)
 	}
-
+	
 	return c.Interface(), d.Interface()
 }
 
@@ -152,26 +152,26 @@ func RemoveSlice(src interface{}, rm interface{}) interface{} {
 	if at.Kind() != reflect.Slice {
 		panic("a is not slice")
 	}
-
+	
 	bt := reflect.TypeOf(src)
 	if bt.Kind() != reflect.Slice {
 		panic("b is not slice")
 	}
-
+	
 	atm := at.Elem()
 	btm := bt.Elem()
-
+	
 	if atm.Kind() != btm.Kind() {
 		panic("a and b are not same type")
 	}
-
+	
 	m := map[interface{}]bool{}
-
+	
 	bv := reflect.ValueOf(rm)
 	for i := 0; i < bv.Len(); i++ {
 		m[bv.Index(i).Interface()] = true
 	}
-
+	
 	c := reflect.MakeSlice(at, 0, 0)
 	av := reflect.ValueOf(src)
 	for i := 0; i < av.Len(); i++ {
@@ -180,6 +180,43 @@ func RemoveSlice(src interface{}, rm interface{}) interface{} {
 			delete(m, av.Index(i).Interface())
 		}
 	}
-
+	
 	return c.Interface()
+}
+
+func KeyBy(list interface{}, fieldName string) interface{} {
+	lv := reflect.ValueOf(list)
+	
+	switch lv.Kind() {
+	case reflect.Slice, reflect.Array:
+	default:
+		panic("list required slice or array type")
+	}
+	
+	var m reflect.Value
+	for i := 0; i < lv.Len(); i++ {
+		elem := lv.Index(i)
+		elemStruct := elem
+		for elemStruct.Kind() == reflect.Ptr {
+			elemStruct = elemStruct.Elem()
+		}
+		
+		// 如果是nil的，意味着key和value同时不存在，所以跳过不处理
+		if !elemStruct.IsValid() {
+			continue
+		}
+		
+		if elemStruct.Kind() != reflect.Struct {
+			panic("element not struct")
+		}
+		
+		f := elemStruct.FieldByName(fieldName)
+		if !m.IsValid() {
+			m = reflect.MakeMapWithSize(reflect.MapOf(f.Type(), elem.Type()), lv.Len())
+		}
+		
+		m.SetMapIndex(f, elem)
+	}
+	
+	return m.Interface()
 }

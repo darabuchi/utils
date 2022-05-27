@@ -3,7 +3,7 @@ package table_test
 import (
 	_ "embed"
 	"testing"
-
+	
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/darabuchi/utils/table"
@@ -13,30 +13,30 @@ import (
 func TestTable(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 	tb := table.NewTable().
-		AddLine(
-			table.NewLineText().
-				SetText("这行asdfg").
-				SetFontSize(35).
-				SetAlignment(1).
-				SetFgColor(drawing.ColorGreen).
-				SetBgColor(drawing.ColorBlue),
-			table.NewRows().
-				AddCell(table.NewText("流量情况").
+			AddLine(
+				table.NewLineText().
+					SetText("这行asdfg").
+					SetFontSize(35).
+					SetAlignment(1).
 					SetFgColor(drawing.ColorGreen).
-					SetBgColor(drawing.ColorBlue)).
-				AddCell(table.NewText("流量消耗（上传/下载）")),
-			table.NewRows().
-				AddCell(table.NewFlowRate().
-					AddData(10, 20, 10, 20, 10)).
-				AddCell(table.NewText("↑100Mbps\n↓100Mbps")),
-		)
-
+					SetBgColor(drawing.ColorBlue),
+				table.NewRows().
+						AddCell(table.NewText("流量情况").
+							SetFgColor(drawing.ColorGreen).
+							SetBgColor(drawing.ColorBlue)).
+					AddCell(table.NewText("流量消耗（上传/下载）")),
+				table.NewRows().
+						AddCell(table.NewFlowRate().
+							AddData(10, 20, 10, 20, 10)).
+					AddCell(table.NewText("↑100Mbps\n↓100Mbps").SetAlignment(table.AlignCenter)),
+			)
+	
 	b, err := tb.ToImg()
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return
 	}
-
+	
 	err = utils.FileWrite("test.png", b.String())
 	if err != nil {
 		log.Errorf("err:%v", err)
