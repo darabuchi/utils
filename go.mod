@@ -3,6 +3,7 @@ module github.com/darabuchi/utils
 go 1.16
 
 require (
+	github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc // indirect
 	github.com/VividCortex/ewma v1.2.0
 	github.com/auyer/steganography v1.0.1
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
