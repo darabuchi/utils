@@ -17,6 +17,12 @@ type Text struct {
 	fontSize float64
 	
 	fgColor, bgColor color.Color
+	alignment        Alignment
+}
+
+func (p *Text) SetAlignment(alignment Alignment) *Text {
+	p.alignment = alignment
+	return p
 }
 
 func (p *Text) setSize(size *Size) {
@@ -37,10 +43,20 @@ func (p *Text) DrawImg(x, y float64, img *image.RGBA) error {
 	DrawRectangleColor(img, p.bgColor, x, y, s.Width, s.Height)
 	
 	for idx, line := range lines {
-		s := TextSize(line, p.fontSize)
-		log.Debugf("line:%v,text:%v,x:%.2f,y:%.2f,%v", idx, line, x, y, s)
-		DrawFont(img, image.NewUniform(p.fgColor), x, y, line, p.fontSize)
-		y += s.Height + borderSize
+		fs := TextSize(line, p.fontSize)
+		
+		log.Debugf("line:%v,text:%v,x:%.2f,y:%.2f,%v", idx, line, x, y, fs)
+		
+		switch p.alignment {
+		case AlignCenter:
+			 DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width)/2, y, line, p.fontSize)
+		case AlignRight:
+			DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width), y, line, p.fontSize)
+		default:
+			DrawFont(img, image.NewUniform(p.fgColor), x, y, line, p.fontSize)
+		}
+		
+		y += fs.Height + borderSize
 	}
 	
 	return nil

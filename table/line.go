@@ -19,6 +19,6 @@ type CellsLine interface {
 
 type LineOne interface {
 	Line
-
+	
 	IsFull() bool
 }

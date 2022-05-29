@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
-
+	
 	"go.uber.org/atomic"
 	"gopkg.in/yaml.v3"
 )
@@ -102,36 +103,36 @@ func (p *Map) get(key string) (interface{}, error) {
 		}
 		return nil, ErrNotFound
 	}
-
+	
 	seq := p.seq.Load()
 	keys := strings.Split(key, seq)
-
+	
 	data := p.data
 	var m *Map
 	for len(keys) > 1 {
 		k := keys[0]
 		keys = keys[1:]
-
+		
 		val, ok = data.Load(k)
 		if !ok {
 			return nil, ErrNotFound
 		}
-
+		
 		m = p.toMap(val)
 		if m == nil {
 			return nil, ErrNotFound
 		}
-
+		
 		data = m.data
 	}
-
+	
 	if len(keys) > 0 {
 		if val, ok = data.Load(keys[0]); ok {
 			return val, nil
 		}
 		return nil, ErrNotFound
 	}
-
+	
 	return nil, ErrNotFound
 }
 
@@ -162,7 +163,7 @@ func (p *Map) GetBool(key string) bool {
 	if err != nil {
 		return false
 	}
-
+	
 	return ToBool(val)
 }
 
@@ -171,7 +172,7 @@ func (p *Map) GetInt(key string) int {
 	if err != nil {
 		return 0
 	}
-
+	
 	return ToInt(val)
 }
 
@@ -180,7 +181,7 @@ func (p *Map) GetInt32(key string) int32 {
 	if err != nil {
 		return 0
 	}
-
+	
 	return ToInt32(val)
 }
 
@@ -189,7 +190,7 @@ func (p *Map) GetInt64(key string) int64 {
 	if err != nil {
 		return 0
 	}
-
+	
 	return ToInt64(val)
 }
 
@@ -198,7 +199,7 @@ func (p *Map) GetUint16(key string) uint16 {
 	if err != nil {
 		return 0
 	}
-
+	
 	switch x := val.(type) {
 	case bool:
 		if x {
@@ -251,7 +252,7 @@ func (p *Map) GetUint32(key string) uint32 {
 	if err != nil {
 		return 0
 	}
-
+	
 	return p.toUint32(val)
 }
 
@@ -308,7 +309,7 @@ func (p *Map) GetUint64(key string) uint64 {
 	if err != nil {
 		return 0
 	}
-
+	
 	return p.toUint64(val)
 }
 
@@ -365,7 +366,7 @@ func (p *Map) GetFloat64(key string) float64 {
 	if err != nil {
 		return 0
 	}
-
+	
 	switch x := val.(type) {
 	case bool:
 		if x {
@@ -418,7 +419,7 @@ func (p *Map) GetString(key string) string {
 	if err != nil {
 		return ""
 	}
-
+	
 	return ToString(val)
 }
 
@@ -427,7 +428,7 @@ func (p *Map) GetBytes(key string) []byte {
 	if err != nil {
 		return []byte("")
 	}
-
+	
 	switch x := val.(type) {
 	case bool:
 		if x {
@@ -472,7 +473,7 @@ func (p *Map) GetMap(key string) *Map {
 	if err != nil {
 		return NewMap(nil)
 	}
-
+	
 	return p.toMap(val)
 }
 
@@ -523,7 +524,7 @@ func (p *Map) GetSlice(key string) []interface{} {
 	if err != nil {
 		return nil
 	}
-
+	
 	switch x := val.(type) {
 	case []bool:
 		var v []interface{}
@@ -627,7 +628,7 @@ func (p *Map) GetStringSlice(key string) []string {
 	if err != nil {
 		return nil
 	}
-
+	
 	switch x := val.(type) {
 	case []bool:
 		var v []string
@@ -731,7 +732,7 @@ func (p *Map) GetUint64Slice(key string) []uint64 {
 	if err != nil {
 		return nil
 	}
-
+	
 	switch x := val.(type) {
 	case []bool:
 		var v []uint64
@@ -839,7 +840,7 @@ func (p *Map) GetInt64Slice(key string) []int64 {
 	if err != nil {
 		return nil
 	}
-
+	
 	return ToInt64Slice(val)
 }
 
@@ -848,7 +849,7 @@ func (p *Map) GetUint32Slice(key string) []uint32 {
 	if err != nil {
 		return nil
 	}
-
+	
 	switch x := val.(type) {
 	case []bool:
 		var v []uint32
@@ -971,4 +972,39 @@ func (p *Map) Clone() *Map {
 		cut:  atomic.NewBool(p.cut.Load()),
 		seq:  atomic.NewString(p.seq.Load()),
 	}
+}
+
+func MapKeysString(m interface{}) []string {
+	t := reflect.ValueOf(m)
+	if t.Kind() != reflect.Map {
+		panic("required map type")
+	}
+	
+	keyType := t.Type().Key()
+	if keyType.Kind() != reflect.String {
+		panic("map key type required string")
+	}
+	
+	var result []string
+	for _, v := range t.MapKeys() {
+		result = append(result, v.String())
+	}
+	
+	return result
+}
+
+func MapValues(m interface{}) interface{} {
+	vo := reflect.ValueOf(m)
+	if vo.Kind() != reflect.Map {
+		panic("required map type")
+	}
+	
+	elType := vo.Type().Elem()
+	list := reflect.MakeSlice(reflect.SliceOf(elType), 0, 0)
+	
+	for _, key := range vo.MapKeys() {
+		list = reflect.Append(list, vo.MapIndex(key))
+	}
+	
+	return list.Interface()
 }
