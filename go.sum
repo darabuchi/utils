@@ -1,3 +1,5 @@
+github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc h1:GxC4QnIlfhsRRA4gqAysU56UrDPAUcn4thbtlIEaNKw=
+github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc/go.mod h1:F4/sRjlOnpYMDwGUhf9wFxPeM69ZsJw8q4x8258R6LE=
 github.com/VividCortex/ewma v1.2.0 h1:f58SaIzcDXrSy3kWaHNvuJgJ3Nmz59Zji6XoJR/q1ow=
 github.com/VividCortex/ewma v1.2.0/go.mod h1:nz4BbCtbLyFDeC9SUHbtcT5644juEuWfUAUnGx7j5l4=
 github.com/aofei/sandid v1.2.0 h1:4zxtmRhc9bN2GADFwIhTpqPhS2G51KvDKqywLPsv1T4=

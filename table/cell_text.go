@@ -49,23 +49,11 @@ func (p *Text) DrawImg(x, y float64, img *image.RGBA) error {
 		
 		switch p.alignment {
 		case AlignCenter:
-			_, err := DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width)/2, y, line, p.fontSize)
-			if err != nil {
-				log.Errorf("err:%v", err)
-				return err
-			}
+			 DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width)/2, y, line, p.fontSize)
 		case AlignRight:
-			_, err := DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width), y, line, p.fontSize)
-			if err != nil {
-				log.Errorf("err:%v", err)
-				return err
-			}
+			DrawFont(img, image.NewUniform(p.fgColor), x+(s.Width-fs.Width), y, line, p.fontSize)
 		default:
-			_, err := DrawFont(img, image.NewUniform(p.fgColor), x, y, line, p.fontSize)
-			if err != nil {
-				log.Errorf("err:%v", err)
-				return err
-			}
+			DrawFont(img, image.NewUniform(p.fgColor), x, y, line, p.fontSize)
 		}
 		
 		y += fs.Height + borderSize

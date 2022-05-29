@@ -1,36 +1,35 @@
 package table
 
 import (
-	_ "embed"
 	"image"
 	"unicode"
-
+	
+	"github.com/AndreKR/multiface"
 	"github.com/darabuchi/log"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 )
 
-//go:embed font.ttf
-var fontBuf []byte
-
-var _font *truetype.Font
+var fontList []*truetype.Font
 
 const (
 	defaultFontSize = 18
 )
 
-func init() {
-	var err error
-	_font, err = freetype.ParseFont(fontBuf)
-	if err != nil {
-		log.Panicf("err:%v", err)
-		return
-	}
+func AddFount(f *truetype.Font) {
+	fontList = append(fontList, f)
 }
 
-func SetFont(f *truetype.Font) {
-	_font = f
+func AddFontWithBuf(fontBuf []byte) error {
+	f, err := freetype.ParseFont(fontBuf)
+	if err != nil {
+		log.Panicf("err:%v", err)
+		return err
+	}
+	
+	AddFount(f)
+	return nil
 }
 
 func TextSize(label string, fontSize float64) *Size {
@@ -46,23 +45,21 @@ func FontLen(str string) float64 {
 		}
 	}
 	return count / 2
+	// return float64(len(str) * 2)
 }
 
-func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) (*Size, error) {
-	c := freetype.NewContext()
-	c.SetFont(_font)
-	c.SetFontSize(fontSize)
-	c.SetClip(dst.Bounds())
-	c.SetDst(dst)
-	c.SetDPI(144)
-	c.SetSrc(src)
-	c.SetHinting(font.HintingFull)
-
-	size, err := c.DrawString(label, freetype.Pt(int(x), int(y+fontSize*2)))
-	if err != nil {
-		log.Errorf("err:%v", err)
-		return nil, err
+func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) {
+	
+	d := font.Drawer{}
+	d.Dst = dst
+	d.Src = src
+	
+	face := new(multiface.Face)
+	for _, f := range fontList {
+		face.AddTruetypeFace(truetype.NewFace(f, &truetype.Options{Size: fontSize, DPI: 144}), f)
 	}
-
-	return NewSize(float64(size.X), float64(size.Y)), nil
+	d.Face = face
+	
+	d.Dot = freetype.Pt(int(x), int(y+fontSize*2))
+	d.DrawString(label)
 }
