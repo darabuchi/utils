@@ -2,10 +2,12 @@ package table
 
 import (
 	"image"
+	"io/fs"
 	"unicode"
-	
+
 	"github.com/AndreKR/multiface"
 	"github.com/darabuchi/log"
+	"github.com/darabuchi/utils"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
@@ -27,9 +29,29 @@ func AddFontWithBuf(fontBuf []byte) error {
 		log.Panicf("err:%v", err)
 		return err
 	}
-	
+
 	AddFount(f)
 	return nil
+}
+
+func AddFontWithPath(path string) error {
+	fontBuf, err := utils.FileRead(path)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	return AddFontWithBuf(fontBuf)
+}
+
+func AddFontWithPathInFs(path string, fsys fs.FS) error {
+	fontBuf, err := utils.FileReadWithFs(path, fsys)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	return AddFontWithBuf(fontBuf)
 }
 
 func TextSize(label string, fontSize float64) *Size {
@@ -49,17 +71,17 @@ func FontLen(str string) float64 {
 }
 
 func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) {
-	
+
 	d := font.Drawer{}
 	d.Dst = dst
 	d.Src = src
-	
+
 	face := new(multiface.Face)
 	for _, f := range fontList {
 		face.AddTruetypeFace(truetype.NewFace(f, &truetype.Options{Size: fontSize, DPI: 144}), f)
 	}
 	d.Face = face
-	
+
 	d.Dot = freetype.Pt(int(x), int(y+fontSize*2))
 	d.DrawString(label)
 }
