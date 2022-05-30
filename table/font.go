@@ -62,9 +62,11 @@ func FontLen(str string) float64 {
 	var count float64
 	for _, v := range str {
 		count++
-		if unicode.Is(unicode.Han, v) {
-			count++
+		if unicode.Is(unicode.Nl, v) {
+			continue
 		}
+
+		count++
 	}
 	return count / 2
 	// return float64(len(str) * 2)
