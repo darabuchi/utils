@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/darabuchi/utils/log"
+	"github.com/darabuchi/log"
 	"testing"
 )
 

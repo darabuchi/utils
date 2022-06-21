@@ -3,11 +3,15 @@ package utils
 import (
 	"runtime/debug"
 	"strings"
-
+	
 	"github.com/darabuchi/log"
 )
 
 func CachePanic() {
+	CachePanicWithHandle(nil)
+}
+
+func CachePanicWithHandle(handle func(err interface{})) {
 	if err := recover(); err != nil {
 		log.Errorf("PROCESS PANIC: err %s", err)
 		st := debug.Stack()
@@ -19,6 +23,9 @@ func CachePanic() {
 			}
 		} else {
 			log.Errorf("stack is empty (%s)", err)
+		}
+		if handle != nil {
+			handle(err)
 		}
 	}
 }

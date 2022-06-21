@@ -57,12 +57,12 @@ func pub(topicName string, msg *nsqMsg) (*PublishRsp, error) {
 	
 	topic := producer.GetTopic(topicName)
 	mqMsg := nsqd.NewMessage(topic.GenerateID(), buf)
+	log.Infof("topic:%s,id:%s,msg:%s", topicName, mqMsg.ID, buf)
 	err = topic.PutMessage(mqMsg)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return nil, err
 	}
-	log.Infof("topic:%s,id:%s,msg:%s", topicName, mqMsg.ID, buf)
 	return &PublishRsp{
 		Version: msg.Version,
 		MsgId:   mqMsg.ID.String(),

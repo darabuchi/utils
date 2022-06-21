@@ -99,6 +99,8 @@ func RegisterHandel(topicName string, channelName string, handel *Handle) {
 					return
 				}
 				
+				msg.Attempts++
+				
 				if handel.MsgTimeout > 0 && time.Since(time.UnixMilli(msg.Timestamp/1000/100)) > handel.MsgTimeout {
 					log.Warnf("msg timeout")
 					err := channel.FinishMessage(clientId, msg.ID)
@@ -134,7 +136,13 @@ func RegisterHandel(topicName string, channelName string, handel *Handle) {
 					finishC <- true
 				}()
 				
-				defer utils.CachePanic()
+				defer utils.CachePanicWithHandle(func(err interface{}) {
+					err = channel.FinishMessage(clientId, msg.ID)
+					if err != nil {
+						log.Errorf("err:%v", err)
+						return
+					}
+				})
 				
 				var m nsqMsg
 				err = json.Unmarshal(msg.Body, &m)
