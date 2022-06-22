@@ -974,7 +974,7 @@ func (p *Map) Clone() *Map {
 	}
 }
 
-func (p *Map) Range(f func(key, value any)) bool {
+func (p *Map) Range(f func(key, value interface{})) bool {
 	return p.Range(f)
 }
 
