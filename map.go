@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -960,7 +961,30 @@ func (p *Map) ToSyncMap() *sync.Map {
 func (p *Map) ToMap() map[string]interface{} {
 	m := map[string]interface{}{}
 	p.data.Range(func(key, value interface{}) bool {
-		m[key.(string)] = value
+		k := ToString(key)
+		
+		switch x := value.(type) {
+		case bool,
+			int, int8, int16, int32, int64,
+			uint, uint8, uint16, uint32, uint64,
+			string, []byte:
+			m[k] = x
+		case float32:
+			if math.Floor(float64(x)) == float64(x) {
+				m[k] = int32(x)
+			} else {
+				m[k] = x
+			}
+		case float64:
+			if math.Floor(x) == x {
+				m[k] = int64(x)
+			} else {
+				m[k] = x
+			}
+		default:
+			m[k] = p.toMap(value).ToMap()
+		}
+		
 		return true
 	})
 	return m

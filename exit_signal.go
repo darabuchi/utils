@@ -1,5 +1,5 @@
-//go:build !plan9 && !windows
-// +build !plan9,!windows
+//go:build !plan9 && !windows && !darwin && !dragonfly && !freebsd && !linux && !solaris && !openbsd && !netbsd
+// +build !plan9,!windows,!darwin,!dragonfly,!freebsd,!linux,!solaris,!openbsd,!netbsd
 
 package utils
 

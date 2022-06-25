@@ -21,7 +21,7 @@ func Start(path string) error {
 	opt.TCPAddress = ""
 	opt.BroadcastAddress = ""
 	opt.MaxMsgSize = -1
-	opt.MemQueueSize = -1
+	opt.MemQueueSize = 10
 	
 	opt.DataPath = utils.GetExecPath()
 	if path != "" {
