@@ -2,7 +2,8 @@ package mq
 
 import (
 	"encoding/json"
-	
+	"fmt"
+
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/nsqio/nsq/nsqd"
@@ -17,9 +18,9 @@ type PublishRsp struct {
 	MsgId   string `json:"msgid,omitempty"`
 }
 
-func Publish(topicName string, message interface{}) (*PublishRsp, error) {
+func Publish(topicName fmt.Stringer, message interface{}) (*PublishRsp, error) {
 	var err error
-	
+
 	var value []byte
 	switch x := message.(type) {
 	case []byte:
@@ -38,26 +39,26 @@ func Publish(topicName string, message interface{}) (*PublishRsp, error) {
 			return nil, err
 		}
 	}
-	
+
 	return pub(topicName, &nsqMsg{
 		Version: Version,
 		Body:    value,
 	})
 }
 
-func pub(topicName string, msg *nsqMsg) (*PublishRsp, error) {
+func pub(topicName fmt.Stringer, msg *nsqMsg) (*PublishRsp, error) {
 	msg.PubAt = utils.Now()
 	msg.TraceId = log.GenTraceId()
-	
+
 	buf, err := json.Marshal(msg)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return nil, err
 	}
-	
-	topic := producer.GetTopic(topicName)
+
+	topic := producer.GetTopic(topicName.String())
 	mqMsg := nsqd.NewMessage(topic.GenerateID(), buf)
-	log.Infof("topic:%s,id:%s,msg:%s", topicName, mqMsg.ID, buf)
+	log.Infof("topic:%s,id:%s,msg:%s", topicName.String(), mqMsg.ID, buf)
 	err = topic.PutMessage(mqMsg)
 	if err != nil {
 		log.Errorf("err:%v", err)
