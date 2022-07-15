@@ -13,9 +13,9 @@ import (
 )
 
 type HandleReq struct {
-	MsgId    string `json:"msg_id,omitempty"`
-	Attempts uint16 `json:"attempts,omitempty"`
-	PubAt    uint32 `json:"pub_at,omitempty"`
+	MsgId    string    `json:"msg_id,omitempty"`
+	Attempts uint16    `json:"attempts,omitempty"`
+	PubAt    time.Time `json:"pub_at,omitempty"`
 
 	Body    []byte      `json:"body,omitempty"`
 	Message interface{} `json:"message,omitempty"`
@@ -41,10 +41,10 @@ type Handle struct {
 }
 
 type nsqMsg struct {
-	Version uint32 `json:"version,omitempty" validate:"required"`
-	Body    []byte `json:"body,omitempty" validate:"required"`
-	TraceId string `json:"trace_id,omitempty"`
-	PubAt   uint32 `json:"pub_at,omitempty" validate:"required"`
+	Version uint32    `json:"version,omitempty" validate:"required"`
+	Body    []byte    `json:"body,omitempty" validate:"required"`
+	TraceId string    `json:"trace_id,omitempty"`
+	PubAt   time.Time `json:"pub_at,omitempty" validate:"required"`
 }
 
 var (
@@ -102,16 +102,6 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 
 				msg.Attempts++
 
-				if handel.MsgTimeout > 0 && time.Since(time.UnixMilli(msg.Timestamp/1000/100)) > handel.MsgTimeout {
-					log.Warnf("msg timeout")
-					err := channel.FinishMessage(clientId, msg.ID)
-					if err != nil {
-						log.Errorf("err:%v", err)
-						return
-					}
-					return
-				}
-
 				err := channel.StartInFlightTimeout(msg, clientId, time.Second*12)
 				if err != nil {
 					log.Errorf("err:%v", err)
@@ -156,6 +146,16 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 						return
 					}
 
+					return
+				}
+
+				if handel.MsgTimeout > 0 && time.Since(m.PubAt) > handel.MsgTimeout {
+					log.Warnf("msg timeout")
+					err := channel.FinishMessage(clientId, msg.ID)
+					if err != nil {
+						log.Errorf("err:%v", err)
+						return
+					}
 					return
 				}
 

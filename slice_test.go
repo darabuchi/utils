@@ -10,7 +10,7 @@ func TestPluckUint64(t *testing.T) {
 	type item struct {
 		Id uint64
 	}
-	
+
 	type args struct {
 		list      interface{}
 		fieldName string
@@ -49,14 +49,14 @@ func pluckUint64(max uint64, b *testing.B) {
 	type item struct {
 		Id uint64
 	}
-	
+
 	var items []*item
 	for i := uint64(0); i < max; i++ {
 		items = append(items, &item{
 			Id: i,
 		})
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		PluckUint64(items, "Id")
@@ -89,7 +89,7 @@ func TestKeyByV2(t *testing.T) {
 		Id   int
 		Name string
 	}
-	
+
 	type args struct {
 		list      interface{}
 		fieldName string
@@ -156,7 +156,7 @@ func keyBy(max int64, b *testing.B) {
 		Id   int64
 		Name string
 	}
-	
+
 	var items []*item
 	for i := int64(0); i < max; i++ {
 		items = append(items, &item{
@@ -164,7 +164,7 @@ func keyBy(max int64, b *testing.B) {
 			Name: strconv.FormatInt(i, 10),
 		})
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = KeyBy(items, "Id").(map[int64]*item)

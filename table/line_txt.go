@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/color"
 	"strings"
-	
+
 	"github.com/darabuchi/log"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 )
@@ -20,47 +20,47 @@ const (
 
 type LineTxt struct {
 	text string
-	
+
 	fontSize float64
-	
+
 	size *Size
-	
+
 	fgColor, bgColor color.Color
 	alignment        Alignment
 }
 
 func (p *LineTxt) DrawImg(x, y float64, img *image.RGBA) error {
 	lines := strings.Split(p.text, "\n")
-	
+
 	size := p.Size()
 	DrawRectangleColor(img, p.bgColor, x, y, size.Width, size.Height)
-	
+
 	for idx, line := range lines {
 		log.Debugf("line:%v,text:%v,x:%.2f,y:%.2f", idx, line, x, y)
 		fs := TextSize(line, p.fontSize)
-		
+
 		switch p.alignment {
 		case AlignCenter:
 			DrawFont(img, image.NewUniform(p.fgColor), x+(size.Width-fs.Width)/2, y, line, p.fontSize)
-		
+
 		case AlignRight:
 			DrawFont(img, image.NewUniform(p.fgColor), x+(size.Width-fs.Width), y, line, p.fontSize)
-		
+
 		default:
 			DrawFont(img, image.NewUniform(p.fgColor), x, y, line, p.fontSize)
-			
+
 		}
-		
+
 		y += fs.Height
 	}
-	
+
 	return nil
 }
 
 func (p *LineTxt) MinSize() *Size {
 	lines := strings.Split(p.text, "\n")
 	size := NewSize(0, 0)
-	
+
 	for _, line := range lines {
 		s := TextSize(line, p.fontSize)
 		size.Height += s.Height
@@ -68,7 +68,7 @@ func (p *LineTxt) MinSize() *Size {
 			size.Width = s.Width
 		}
 	}
-	
+
 	return size
 }
 

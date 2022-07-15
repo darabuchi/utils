@@ -42,3 +42,14 @@ func (p *Error) SetErrCode(errcode int32) *Error {
 	p.ErrCode = errcode
 	return p
 }
+
+func GetErrCode(err error) int32 {
+	if err == nil {
+		return 0
+	}
+	if x, ok := err.(*Error); ok {
+		return x.ErrCode
+	} else {
+		return -1
+	}
+}

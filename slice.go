@@ -12,24 +12,24 @@ func pluck(list interface{}, fieldName string, deferVal interface{}) interface{}
 		if v.Len() == 0 {
 			return deferVal
 		}
-		
+
 		ev := v.Type().Elem()
 		evs := ev
 		for evs.Kind() == reflect.Ptr {
 			evs = evs.Elem()
 		}
-		
+
 		if evs.Kind() != reflect.Struct {
 			panic("list element is not struct")
 		}
-		
+
 		field, ok := evs.FieldByName(fieldName)
 		if !ok {
 			panic(fmt.Sprintf("field %s not found", fieldName))
 		}
-		
+
 		result := reflect.MakeSlice(reflect.SliceOf(field.Type), v.Len(), v.Len())
-		
+
 		for i := 0; i < v.Len(); i++ {
 			ev := v.Index(i)
 			for ev.Kind() == reflect.Ptr {
@@ -43,7 +43,7 @@ func pluck(list interface{}, fieldName string, deferVal interface{}) interface{}
 			}
 			result.Index(i).Set(ev.FieldByIndex(field.Index))
 		}
-		
+
 		return result.Interface()
 	default:
 		panic("list must be an array or slice")
@@ -80,26 +80,26 @@ func DiffSlice(a interface{}, b interface{}) (interface{}, interface{}) {
 	if at.Kind() != reflect.Slice {
 		panic("a is not slice")
 	}
-	
+
 	bt := reflect.TypeOf(b)
 	if bt.Kind() != reflect.Slice {
 		panic("b is not slice")
 	}
-	
+
 	atm := at.Elem()
 	btm := bt.Elem()
-	
+
 	if atm.Kind() != btm.Kind() {
 		panic("a and b are not same type")
 	}
-	
+
 	m := map[interface{}]reflect.Value{}
-	
+
 	bv := reflect.ValueOf(b)
 	for i := 0; i < bv.Len(); i++ {
 		m[bv.Index(i).Interface()] = bv.Index(i)
 	}
-	
+
 	c := reflect.MakeSlice(at, 0, 0)
 	d := reflect.MakeSlice(bt, 0, 0)
 	av := reflect.ValueOf(a)
@@ -110,11 +110,11 @@ func DiffSlice(a interface{}, b interface{}) (interface{}, interface{}) {
 			delete(m, av.Index(i).Interface())
 		}
 	}
-	
+
 	for _, value := range m {
 		d = reflect.Append(d, value)
 	}
-	
+
 	return c.Interface(), d.Interface()
 }
 
@@ -127,26 +127,26 @@ func RemoveSlice(src interface{}, rm interface{}) interface{} {
 	if at.Kind() != reflect.Slice {
 		panic("a is not slice")
 	}
-	
+
 	bt := reflect.TypeOf(src)
 	if bt.Kind() != reflect.Slice {
 		panic("b is not slice")
 	}
-	
+
 	atm := at.Elem()
 	btm := bt.Elem()
-	
+
 	if atm.Kind() != btm.Kind() {
 		panic("a and b are not same type")
 	}
-	
+
 	m := map[interface{}]bool{}
-	
+
 	bv := reflect.ValueOf(rm)
 	for i := 0; i < bv.Len(); i++ {
 		m[bv.Index(i).Interface()] = true
 	}
-	
+
 	c := reflect.MakeSlice(at, 0, 0)
 	av := reflect.ValueOf(src)
 	for i := 0; i < av.Len(); i++ {
@@ -155,34 +155,34 @@ func RemoveSlice(src interface{}, rm interface{}) interface{} {
 			delete(m, av.Index(i).Interface())
 		}
 	}
-	
+
 	return c.Interface()
 }
 
 func KeyBy(list interface{}, fieldName string) interface{} {
 	lv := reflect.ValueOf(list)
-	
+
 	switch lv.Kind() {
 	case reflect.Slice, reflect.Array:
 	default:
 		panic("list required slice or array type")
 	}
-	
+
 	ev := lv.Type().Elem()
 	evs := ev
 	for evs.Kind() == reflect.Ptr {
 		evs = evs.Elem()
 	}
-	
+
 	if evs.Kind() != reflect.Struct {
 		panic("list element is not struct")
 	}
-	
+
 	field, ok := evs.FieldByName(fieldName)
 	if !ok {
 		panic(fmt.Sprintf("field %s not found", fieldName))
 	}
-	
+
 	m := reflect.MakeMapWithSize(reflect.MapOf(field.Type, ev), lv.Len())
 	for i := 0; i < lv.Len(); i++ {
 		elem := lv.Index(i)
@@ -190,18 +190,18 @@ func KeyBy(list interface{}, fieldName string) interface{} {
 		for elemStruct.Kind() == reflect.Ptr {
 			elemStruct = elemStruct.Elem()
 		}
-		
+
 		// 如果是nil的，意味着key和value同时不存在，所以跳过不处理
 		if !elemStruct.IsValid() {
 			continue
 		}
-		
+
 		if elemStruct.Kind() != reflect.Struct {
 			panic("element not struct")
 		}
-		
+
 		m.SetMapIndex(elemStruct.FieldByIndex(field.Index), elem)
 	}
-	
+
 	return m.Interface()
 }

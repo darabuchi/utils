@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	
+
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/darabuchi/utils/xtime"
@@ -22,15 +22,15 @@ func Start(path string) error {
 	opt.BroadcastAddress = ""
 	opt.MaxMsgSize = -1
 	opt.MemQueueSize = 10
-	
+
 	opt.DataPath = utils.GetExecPath()
 	if path != "" {
 		opt.DataPath = path
 	}
-	
+
 	// opt.SnappyEnabled = true
 	opt.MaxMsgSize = 1024 * 1024 * 1024
-	
+
 	if !utils.FileExists(opt.DataPath) {
 		err := os.MkdirAll(opt.DataPath, 0777)
 		if err != nil {
@@ -38,21 +38,23 @@ func Start(path string) error {
 			return err
 		}
 	}
-	
+
+	opt.Logger = NewLogger()
+
 	var err error
 	producer, err = nsqd.New(opt)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return err
 	}
-	
+
 	go func() {
 		err := producer.Main()
 		if err != nil {
 			log.Panicf("err:%v", err)
 		}
 	}()
-	
+
 	go func(c chan os.Signal) {
 		for {
 			select {
@@ -63,11 +65,11 @@ func Start(path string) error {
 					if info == nil {
 						return nil
 					}
-					
+
 					if info.IsDir() {
 						return nil
 					}
-					
+
 					switch filepath.Ext(path) {
 					case ".bad":
 						log.Warnf("remove bad file:%s", path)
@@ -92,7 +94,7 @@ func Start(path string) error {
 			}
 		}
 	}(utils.GetExitSign())
-	
+
 	return nil
 }
 
@@ -104,7 +106,7 @@ func Close() {
 				log.Errorf("close channel %s-%s err:%v", topicName, channelName, err)
 			}
 		}
-		
+
 		err := topic.Close()
 		if err != nil {
 			log.Errorf("close topic %s err:%v", topicName, err)

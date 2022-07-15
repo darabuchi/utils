@@ -3,6 +3,7 @@ package mq
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
@@ -47,7 +48,7 @@ func Publish(topicName fmt.Stringer, message interface{}) (*PublishRsp, error) {
 }
 
 func pub(topicName fmt.Stringer, msg *nsqMsg) (*PublishRsp, error) {
-	msg.PubAt = utils.Now()
+	msg.PubAt = time.Now()
 	msg.TraceId = log.GenTraceId()
 
 	buf, err := json.Marshal(msg)
