@@ -14,34 +14,32 @@ import (
 
 var producer *nsqd.NSQD
 
-func Start(path string) error {
+func Start(o *Option) error {
+	if o == nil {
+		o = &Option{}
+	}
+
+	err := o.init()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
 	opt := nsqd.NewOptions()
 	opt.HTTPAddress = ""
 	opt.HTTPSAddress = ""
 	opt.TCPAddress = ""
 	opt.BroadcastAddress = ""
 	opt.MaxMsgSize = -1
-	opt.MemQueueSize = 10
+	opt.MemQueueSize = o.MemQueueSize
 
-	opt.DataPath = utils.GetExecPath()
-	if path != "" {
-		opt.DataPath = path
-	}
+	opt.DataPath = o.DataPath
 
 	// opt.SnappyEnabled = true
 	opt.MaxMsgSize = 1024 * 1024 * 1024
 
-	if !utils.FileExists(opt.DataPath) {
-		err := os.MkdirAll(opt.DataPath, 0777)
-		if err != nil {
-			log.Errorf("err:%v", err)
-			return err
-		}
-	}
-
 	opt.Logger = NewLogger()
 
-	var err error
 	producer, err = nsqd.New(opt)
 	if err != nil {
 		log.Errorf("err:%v", err)

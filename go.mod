@@ -9,12 +9,14 @@ require (
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
 	github.com/darabuchi/log v0.0.0-20220323032131-710e5e1eab84
 	github.com/elliotchance/pie v1.39.0
+	github.com/garyburd/redigo v1.6.3
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
 	github.com/nsqio/nsq v1.2.1
 	github.com/petermattis/goid v0.0.0-20220302125637-5f11c28912df // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/shomali11/xredis v0.0.0-20190608143638-0b54a6bbf40b
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
 	go.uber.org/atomic v1.9.0

@@ -22,7 +22,8 @@ type HandleReq struct {
 }
 
 type HandleRsp struct {
-	NeedRetry bool `json:"need_retry,omitempty"`
+	NeedRetry    bool `json:"need_retry,omitempty"`
+	SkipRetryCnt bool `json:"skip_retry_cnt,omitempty"`
 
 	WaitTime time.Duration `json:"wait_time,omitempty"`
 }
@@ -86,7 +87,8 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 	for i := int64(0); i < handel.MaxProcessCnt; i++ {
 		go func(clientId int64) {
 			logic := func(msg *nsqd.Message) {
-				log.SetTrace(msg.ID.String())
+				log.SetTrace(msg.ID.String() + "." + topicName.String() + "." + channelName.String())
+				defer log.DelTrace()
 				log.Infof("handel %s %s", topicName.String(), channelName.String())
 
 				finishC := make(chan bool, 1)
@@ -159,7 +161,7 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 					return
 				}
 
-				log.SetTrace(m.TraceId + "." + log.GenTraceId())
+				log.SetTrace(m.TraceId + "." + log.GenTraceId() + "." + topicName.String() + "." + channelName.String())
 				log.Infof("[%s(%s)]handel msg %s", topicName.String(), channelName.String(), msg.ID.String())
 
 				req := &HandleReq{
