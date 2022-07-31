@@ -248,3 +248,19 @@ func SRem(key string, members ...string) (int64, error) {
 
 	return redis.Int64(conn.Do("SREM", args...))
 }
+
+func HIncr(key string, field string) (int64, error) {
+	return client.HIncr(key, field)
+}
+
+func HIncrBy(key string, field string, increment int64) (int64, error) {
+	return client.HIncrBy(key, field, increment)
+}
+
+func HDecr(key string, field string) (int64, error) {
+	return client.HDecr(key, field)
+}
+
+func HDecrBy(key string, field string, increment int64) (int64, error) {
+	return client.HDecrBy(key, field, increment)
+}
