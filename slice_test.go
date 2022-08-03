@@ -192,3 +192,70 @@ func BenchmarkKeyBy_1000(b *testing.B)  { keyBy(1000, b) }
 func BenchmarkKeyBy_2000(b *testing.B)  { keyBy(2000, b) }
 func BenchmarkKeyBy_5000(b *testing.B)  { keyBy(5000, b) }
 func BenchmarkKeyBy_10000(b *testing.B) { keyBy(10000, b) }
+
+func TestPluckStringSlice(t *testing.T) {
+	type item struct {
+		Id    int
+		Names []string
+	}
+	type args struct {
+		list      interface{}
+		fieldName string
+	}
+	tests := []struct {
+		name string
+		args args
+		want [][]string
+	}{
+		{
+			name: "",
+			args: args{
+				list: []*item{
+					{
+						Names: []string{"a", "b", "c"},
+					},
+					{
+						Names: []string{"d", "e", "f"},
+					},
+					{
+						Names: []string{"g", "h", "i"},
+					},
+				},
+				fieldName: "Names",
+			},
+			want: [][]string{{"a", "b", "c"}, {"d", "e", "f"}, {"g", "h", "i"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := PluckStringSlice(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("PluckStringSlice() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPluckString(t *testing.T) {
+	tests := []struct {
+		name string
+		args [][]string
+		want []string
+	}{
+		{
+			name: "",
+			args: [][]string{
+				{"a", "b", "c"},
+				{"d", "e", "f"},
+				{"g", "h", "i"},
+			},
+			want: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := PluckString(tt.args, ""); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("PluckString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

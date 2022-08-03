@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/darabuchi/log"
 )
 
 func pluck(list interface{}, fieldName string, deferVal interface{}) interface{} {
@@ -19,32 +21,57 @@ func pluck(list interface{}, fieldName string, deferVal interface{}) interface{}
 			evs = evs.Elem()
 		}
 
-		if evs.Kind() != reflect.Struct {
-			panic("list element is not struct")
+		switch evs.Kind() {
+		case reflect.Struct:
+			// 如果是 struct，则取出 fieldName 的值
+			field, ok := evs.FieldByName(fieldName)
+			if !ok {
+				panic(fmt.Sprintf("field %s not found", fieldName))
+			}
+
+			result := reflect.MakeSlice(reflect.SliceOf(field.Type), v.Len(), v.Len())
+
+			for i := 0; i < v.Len(); i++ {
+				ev := v.Index(i)
+				for ev.Kind() == reflect.Ptr {
+					ev = ev.Elem()
+				}
+				if ev.Kind() != reflect.Struct {
+					panic("element is not a struct")
+				}
+				if !ev.IsValid() {
+					continue
+				}
+				result.Index(i).Set(ev.FieldByIndex(field.Index))
+			}
+
+			return result.Interface()
+		case reflect.Slice, reflect.Array:
+			var ev reflect.Value
+			var c int
+			for i := 0; i < v.Len(); i++ {
+				ev = v.Index(i)
+				for i := 0; i < ev.Len(); i++ {
+					c += ev.Index(i).Len()
+				}
+			}
+
+			result := reflect.MakeSlice(ev.Type(), c, c)
+			var idx int
+			for i := 0; i < v.Len(); i++ {
+				ev := v.Index(i)
+				for i := 0; i < ev.Len(); i++ {
+					result.Index(idx).Set(ev.Index(i))
+					idx++
+				}
+			}
+
+			return result.Interface()
+		default:
+			log.Debugf("pluck %s", evs.Kind())
+			panic("list element type is not supported")
 		}
 
-		field, ok := evs.FieldByName(fieldName)
-		if !ok {
-			panic(fmt.Sprintf("field %s not found", fieldName))
-		}
-
-		result := reflect.MakeSlice(reflect.SliceOf(field.Type), v.Len(), v.Len())
-
-		for i := 0; i < v.Len(); i++ {
-			ev := v.Index(i)
-			for ev.Kind() == reflect.Ptr {
-				ev = ev.Elem()
-			}
-			if ev.Kind() != reflect.Struct {
-				panic("element is not a struct")
-			}
-			if !ev.IsValid() {
-				continue
-			}
-			result.Index(i).Set(ev.FieldByIndex(field.Index))
-		}
-
-		return result.Interface()
 	default:
 		panic("list must be an array or slice")
 	}
@@ -68,6 +95,10 @@ func PluckUint64(list interface{}, fieldName string) []uint64 {
 
 func PluckString(list interface{}, fieldName string) []string {
 	return pluck(list, fieldName, []string{}).([]string)
+}
+
+func PluckStringSlice(list interface{}, fieldName string) [][]string {
+	return pluck(list, fieldName, [][]string{}).([][]string)
 }
 
 // DiffSlice 传入两个slice
