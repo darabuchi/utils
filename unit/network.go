@@ -29,26 +29,35 @@ const (
 )
 
 func Speed2Str(speed float64) string {
-	var speedStr string
-	if speed == 0 {
-		speedStr = "0bps"
-	} else if speed < 1024 {
-		speedStr = fmt.Sprintf("%.2fbps", speed*8)
-	} else if speed < (1024 * 128) {
-		speedStr = fmt.Sprintf("%.2fKbps", speed/128)
-	} else if speed < (1024 * 1024 * 128) {
-		speedStr = fmt.Sprintf("%.2fMbps", speed/(128*1024))
-	} else if speed < (1024 * 1024 * 1024 * 128) {
-		speedStr = fmt.Sprintf("%.2fGbps", speed/(128*1024*1024))
-	} else {
-		speedStr = fmt.Sprintf("%.2fTbps", speed/(128*1024*1024*1024))
-	}
-
-	return speedStr
+	return Speed2bps(speed)
 }
 
-func Flow2Str(fileSize uint64) (size string) {
-	if fileSize < 1024 {
+func Speed2bps(speed float64) string {
+	if speed < 0 {
+		return "——"
+	} else if speed == 0 {
+		return "0bps"
+	} else if speed < 1024 {
+		return fmt.Sprintf("%.2fbps", speed*8)
+	} else if speed < (1024 * 128) {
+		return fmt.Sprintf("%.2fKbps", speed/128)
+	} else if speed < (1024 * 1024 * 128) {
+		return fmt.Sprintf("%.2fMbps", speed/(128*1024))
+	} else if speed < (1024 * 1024 * 1024 * 128) {
+		return fmt.Sprintf("%.2fGbps", speed/(128*1024*1024))
+	} else {
+		return fmt.Sprintf("%.2fTbps", speed/(128*1024*1024*1024))
+	}
+}
+
+func Flow2Str(fileSize int64) (size string) {
+	return Flow2B(fileSize)
+}
+
+func Flow2B(fileSize int64) (size string) {
+	if fileSize < 0 {
+		return "——"
+	} else if fileSize < 1024 {
 		// return strconv.FormatInt(fileSize, 10) + "B"
 		return fmt.Sprintf("%.2fB", float64(fileSize)/float64(1))
 	} else if fileSize < (1024 * 1024) {

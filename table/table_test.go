@@ -2,6 +2,7 @@ package table_test
 
 import (
 	"bytes"
+	"embed"
 	_ "embed"
 	"image"
 	"image/draw"
@@ -18,26 +19,46 @@ import (
 	"golang.org/x/image/font"
 )
 
+//go:embed chinese.ttf
+//go:embed emoji.ttf
+//go:embed symbola.ttf
+var fontBuf embed.FS
+
 func TestTable(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
+
+	err := table.AddFontWithPathInFs("chinese.ttf", fontBuf)
+	if err != nil {
+		log.Panicf("err:%v", err)
+		return
+	}
+	err = table.AddFontWithPathInFs("symbola.ttf", fontBuf)
+	if err != nil {
+		log.Panicf("err:%v", err)
+		return
+	}
+	err = table.AddFontWithPathInFs("emoji.ttf", fontBuf)
+	if err != nil {
+		log.Panicf("err:%v", err)
+		return
+	}
+
 	tb := table.NewTable().
-		AddLine(
-			table.NewLineText().
-				SetText("这行asdfg").
-				SetFontSize(35).
-				SetAlignment(1).
-				SetFgColor(drawing.ColorGreen).
-				SetBgColor(drawing.ColorBlue),
-			table.NewRows().
-				AddCell(table.NewText("流量情况").
+			AddLine(
+				table.NewLineText().
+					SetText("💰 🇭🇰 Hong Kong 16").
+					SetFontSize(35).
+					SetAlignment(table.AlignCenter).
 					SetFgColor(drawing.ColorGreen).
-					SetBgColor(drawing.ColorBlue)).
-				AddCell(table.NewText("流量消耗（上传/下载）")),
-			table.NewRows().
-				AddCell(table.NewFlowRate().
-					AddData(10, 20, 10, 20, 10)).
-				AddCell(table.NewText("↑100Mbps\n↓100Mbps")),
-		)
+					SetBgColor(drawing.ColorBlue),
+				table.NewFlowCurve().
+					// table.NewFlowRate().
+					// table.NewFlowHistogram().
+					AddData(50, 200, 150).
+					SetFull(true).
+					SetFgColor(table.Purple),
+			).
+		SetWmk("水印")
 
 	b, err := tb.ToImg()
 	if err != nil {
@@ -99,4 +120,32 @@ func TestCurve(t *testing.T) {
 		log.Panicf("err:%v", err)
 		return
 	}
+}
+
+func TestFontSize(t *testing.T) {
+	// const s = "🇭🇰"
+	//
+	// t.Log(emoji.FilterEmoji(s))
+	//
+	// return
+	log.SetLevel(log.DebugLevel)
+
+	err := table.AddFontWithPathInFs("chinese.ttf", fontBuf)
+	if err != nil {
+		t.Errorf("err:%v", err)
+		return
+	}
+	err = table.AddFontWithPathInFs("symbola.ttf", fontBuf)
+	if err != nil {
+		t.Errorf("err:%v", err)
+		return
+	}
+	err = table.AddFontWithPathInFs("NotoEmoji.ttf", fontBuf)
+	if err != nil {
+		t.Errorf("err:%v", err)
+		return
+	}
+
+	t.Log(table.FontLen("🇭🇰 001"))
+	// t.Log(emoji.HasEmoji("🇭🇰"))
 }

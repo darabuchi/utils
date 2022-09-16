@@ -204,12 +204,23 @@ func Del(keys ...string) (int64, error) {
 	return client.Del(keys...)
 }
 
-func HSet(key string, field string, value string) (bool, error) {
-	return client.HSet(key, field, value)
+func HSet(key string, field string, value interface{}) (bool, error) {
+	return client.HSet(key, field, utils.ToString(value))
 }
 
 func HGetAll(key string) (map[string]string, error) {
 	return client.HGetAll(key)
+}
+
+func HKeys(key string) ([]string, error) {
+	return client.HKeys(key)
+}
+
+func HVals(key string) ([]string, error) {
+	conn := client.GetConnection()
+	defer conn.Close()
+
+	return redis.Strings(conn.Do("HVALS", key))
 }
 
 func HDel(key string, fields ...string) (int64, error) {
@@ -249,8 +260,8 @@ func SRem(key string, members ...string) (int64, error) {
 	return redis.Int64(conn.Do("SREM", args...))
 }
 
-func HIncr(key string, field string) (int64, error) {
-	return client.HIncr(key, field)
+func HIncr(key string, subKey string) (int64, error) {
+	return client.HIncr(key, subKey)
 }
 
 func HIncrBy(key string, field string, increment int64) (int64, error) {

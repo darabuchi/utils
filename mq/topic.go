@@ -24,3 +24,12 @@ func GetTopicDepth(name fmt.Stringer) int64 {
 
 	return depth
 }
+
+func GetDepth() (depth int64) {
+	for _, topic := range CloneTopic() {
+		for _, channel := range topic.CloneChannel() {
+			depth += channel.Depth() + channel.InFlightDepth() + channel.DeferredDepth()
+		}
+	}
+	return
+}

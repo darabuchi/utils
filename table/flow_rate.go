@@ -21,6 +21,7 @@ type FlowRate struct {
 	data pie.Float64s
 
 	baseData float64
+	isFull   bool
 }
 
 func (p *FlowRate) DrawImg(x, y float64, img *image.RGBA) error {
@@ -40,14 +41,14 @@ func (p *FlowRate) DrawImg(x, y float64, img *image.RGBA) error {
 	DrawRectangleColor(img, p.fgColor, x, y, s.Width, s.Height)
 
 	max := p.data.Max()
-	width := s.Width / float64(len(p.data)) / 100
+	width := s.Width / float64(len(p.data)-1) / 1000
 
 	series := analytics.NewSeries()
 	for i, datum := range p.data {
-		series.Add(float64(i+1), datum)
+		series.Add(float64(i), datum)
 	}
 	fit := series.FitPolynomial(len(p.data))
-	for i := float64(0); i <= float64(len(p.data)); i += 0.01 {
+	for i := float64(0); i <= float64(len(p.data)-1); i += 0.001 {
 		h := ((max - analytics.Extrapolate(fit, i)) / max) * s.Height
 		DrawRectangleColor(img, p.bgColor, x, y, width, h)
 		x += width
@@ -64,7 +65,7 @@ func (p *FlowRate) DrawImg(x, y float64, img *image.RGBA) error {
 }
 
 func (p *FlowRate) MinSize() *Size {
-	return NewSize(float64(flowRateWight*(len(p.data))), 20)
+	return NewSize(float64(flowRateWight*(len(p.data))), 60)
 }
 
 func (p *FlowRate) setSize(size *Size) {
@@ -91,6 +92,15 @@ func (p *FlowRate) SetBgColor(color color.Color) *FlowRate {
 func (p *FlowRate) AddData(data ...float64) *FlowRate {
 	p.data = append(p.data, data...)
 	return p
+}
+
+func (p *FlowRate) SetFull(i bool) *FlowRate {
+	p.isFull = i
+	return p
+}
+
+func (p *FlowRate) IsFull() bool {
+	return p.isFull
 }
 
 func NewFlowRate() *FlowRate {

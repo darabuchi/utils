@@ -89,6 +89,10 @@ func PluckUint32(list interface{}, fileName string) []uint32 {
 	return pluck(list, fileName, []uint32{}).([]uint32)
 }
 
+func PluckInt64(list interface{}, fieldName string) []int64 {
+	return pluck(list, fieldName, []int64{}).([]int64)
+}
+
 func PluckUint64(list interface{}, fieldName string) []uint64 {
 	return pluck(list, fieldName, []uint64{}).([]uint64)
 }

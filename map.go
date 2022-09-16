@@ -368,51 +368,7 @@ func (p *Map) GetFloat64(key string) float64 {
 		return 0
 	}
 
-	switch x := val.(type) {
-	case bool:
-		if x {
-			return 1
-		}
-		return 0
-	case int:
-		return float64(x)
-	case int8:
-		return float64(x)
-	case int16:
-		return float64(x)
-	case int32:
-		return float64(x)
-	case int64:
-		return float64(x)
-	case uint:
-		return float64(x)
-	case uint8:
-		return float64(x)
-	case uint16:
-		return float64(x)
-	case uint32:
-		return float64(x)
-	case uint64:
-		return float64(x)
-	case float32:
-		return float64(x)
-	case float64:
-		return x
-	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
-		if err != nil {
-			return 0
-		}
-		return float64(val)
-	case []byte:
-		val, err := strconv.ParseFloat(string(x), 64)
-		if err != nil {
-			return 0
-		}
-		return val
-	default:
-		return 0
-	}
+	return ToFloat64(val)
 }
 
 func (p *Map) GetString(key string) string {

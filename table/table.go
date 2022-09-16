@@ -16,14 +16,23 @@ type Table struct {
 	lines []Line
 
 	steganography interface{}
+
+	wmk string
 }
 
 func NewTable() *Table {
 	return &Table{}
 }
 
+// 添加图片隐写
 func (p *Table) SetSteganography(data interface{}) *Table {
 	p.steganography = data
+	return p
+}
+
+// 添加水印
+func (p *Table) SetWmk(data string) *Table {
+	p.wmk = data
 	return p
 }
 
@@ -42,25 +51,26 @@ var (
 
 func (p *Table) ToImg() (*bytes.Buffer, error) {
 
-	size := NewSize(0, 0)
+	imgSize := NewSize(0, 0)
 
+	// 找到最大的长宽
 	colWidthMap := map[int]float64{}
-	rowHightMap := map[int]float64{}
+	rowHighMap := map[int]float64{}
 	for rowIdx, line := range p.lines {
 		s := line.MinSize()
-		if s.Width > size.Width {
-			size.Width = s.Width
+		if s.Width > imgSize.Width {
+			imgSize.Width = s.Width
 		}
 
 		switch x := line.(type) {
 		case CellsLine:
 			err := x.RangeCell(func(colIdx int, cell Cell) error {
-				size := cell.MinSize()
+				size := cell.Size()
 				if colWidthMap[colIdx] < size.Width {
 					colWidthMap[colIdx] = size.Width
 				}
-				if rowHightMap[rowIdx] < size.Height {
-					rowHightMap[rowIdx] = size.Height
+				if rowHighMap[rowIdx] < size.Height {
+					rowHighMap[rowIdx] = size.Height
 				}
 				return nil
 			})
@@ -70,7 +80,7 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 			}
 		}
 
-		size.Height += s.Height + borderSize
+		imgSize.Height += s.Height + borderSize
 	}
 
 	{
@@ -79,36 +89,40 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 			w += i + borderSize
 		}
 
-		if w > size.Width {
-			size.Width = w
+		if w > imgSize.Width {
+			imgSize.Width = w
 		}
 	}
 
 	{
 		var h float64
-		for _, i := range rowHightMap {
+		for _, i := range rowHighMap {
 			h += i + borderSize
 		}
 
-		if h > size.Height {
-			size.Height = h
+		if h > imgSize.Height {
+			imgSize.Height = h
 		}
 	}
 
-	log.Debugf("img size:%v", size)
+	log.Debugf("img size:%v", imgSize)
 
-	img := image.NewRGBA(image.Rect(0, 0, int(size.Width), int(size.Height)))
+	img := image.NewRGBA(image.Rect(0, 0, int(imgSize.Width), int(imgSize.Height)))
 	draw.Draw(img, img.Bounds(), image.White, img.Bounds().Min, draw.Src)
 
 	for rowIdx, line := range p.lines {
 		switch x := line.(type) {
 		case LineOne:
+			log.Debugf("%d is line one", rowIdx)
 			s := line.MinSize()
-			s.Width = size.Width
+			if x.IsFull() {
+				log.Debugf("set width is full %v", imgSize.Width)
+				s.Width = imgSize.Width
+			}
 			line.setSize(NewSize(s.Width, s.Height))
 		case CellsLine:
 			err := x.RangeCell(func(colIdx int, cell Cell) error {
-				cell.setSize(NewSize(colWidthMap[colIdx], rowHightMap[rowIdx]))
+				cell.setSize(NewSize(colWidthMap[colIdx], rowHighMap[rowIdx]))
 				return nil
 			})
 			if err != nil {
@@ -118,12 +132,13 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 		}
 	}
 
+	// 对每一个cell进行绘图
 	var y float64
 	for idx, line := range p.lines {
 		s := line.Size()
 		log.Debugf("line:%v,size:%v", idx, s)
 
-		DrawRectangleColor(img, borderColor, 0, y+s.Height, size.Width, borderSize)
+		DrawRectangleColor(img, borderColor, 0, y+s.Height, imgSize.Width, borderSize)
 
 		err := line.DrawImg(0, y, img)
 		if err != nil {
@@ -131,6 +146,21 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 			return nil, err
 		}
 		y += s.Height + borderSize
+	}
+
+	{
+		// 绘制水印
+		if p.wmk != "" {
+			const wmkFontSize = 60
+			// TODO 多行的处理
+			wmkSize := TextSize(p.wmk, wmkFontSize)
+
+			for y := float64(0); y < imgSize.Height; y += wmkSize.Height + wmkFontSize*2 {
+				for x := float64(0); x < imgSize.Width; x += wmkSize.Width + wmkFontSize*2 {
+					DrawFont(img, image.NewUniform(drawing.Color{R: 228, G: 221, B: 184, A: 65}), x, y, p.wmk, wmkFontSize)
+				}
+			}
+		}
 	}
 
 	var b bytes.Buffer

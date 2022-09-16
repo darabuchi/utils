@@ -215,9 +215,12 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 					default:
 						// 除非指定重试
 						if rsp != nil && rsp.NeedRetry {
+							log.Warnf("wait retry")
 							if rsp.WaitTime > 0 {
+								log.Warnf("wait %v retry", rsp.WaitTime)
 								err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
 							} else {
+								log.Warnf("wait %v retry", time.Second*5)
 								err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
 							}
 							if err != nil {
@@ -234,8 +237,10 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 				// 需要重试
 				if rsp.NeedRetry {
 					if rsp.WaitTime > 0 {
+						log.Warnf("wait %v retry", rsp.WaitTime)
 						err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
 					} else {
+						log.Warnf("wait %v retry", time.Second*5)
 						err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
 					}
 					if err != nil {

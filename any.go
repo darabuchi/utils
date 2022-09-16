@@ -7,6 +7,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func ToString(val interface{}) string {
@@ -48,6 +49,8 @@ func ToString(val interface{}) string {
 		}
 
 		return fmt.Sprintf("%f", x)
+	case time.Duration:
+		return x.String()
 	case string:
 		return x
 	case []byte:
@@ -214,6 +217,54 @@ func ToInt64(val interface{}) int64 {
 	}
 }
 
+func ToFloat64(val interface{}) float64 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return float64(x)
+	case int8:
+		return float64(x)
+	case int16:
+		return float64(x)
+	case int32:
+		return float64(x)
+	case int64:
+		return float64(x)
+	case uint:
+		return float64(x)
+	case uint8:
+		return float64(x)
+	case uint16:
+		return float64(x)
+	case uint32:
+		return float64(x)
+	case uint64:
+		return float64(x)
+	case float32:
+		return float64(x)
+	case float64:
+		return x
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return float64(val)
+	case []byte:
+		val, err := strconv.ParseFloat(string(x), 64)
+		if err != nil {
+			return 0
+		}
+		return val
+	default:
+		return 0
+	}
+}
+
 func ToBool(val interface{}) bool {
 	switch x := val.(type) {
 	case bool:
@@ -349,5 +400,108 @@ func ToInt64Slice(val interface{}) []int64 {
 		return v
 	default:
 		return []int64{}
+	}
+}
+
+func ToFloat64Slice(val interface{}) []float64 {
+	switch x := val.(type) {
+	case []bool:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []int:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []int8:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []int16:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []int32:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []int64:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []uint:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []uint8:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []uint16:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []uint32:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []uint64:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []float32:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []float64:
+		var v []float64
+		for _, val := range x {
+			v = append(v, val)
+		}
+		return v
+	case []string:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case [][]byte:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	case []interface{}:
+		var v []float64
+		for _, val := range x {
+			v = append(v, ToFloat64(val))
+		}
+		return v
+	default:
+		return []float64{}
 	}
 }

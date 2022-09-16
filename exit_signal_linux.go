@@ -1,5 +1,5 @@
-//go:build linux
-// +build linux
+//go:build linux && !mips64 && !mips64le && !mips && !mipsle
+// +build linux,!mips64,!mips64le,!mips,!mipsle
 
 package utils
 

@@ -3,13 +3,14 @@ package table
 import (
 	"image"
 	"io/fs"
-	"unicode"
 
 	"github.com/AndreKR/multiface"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
+	emoji "github.com/go-xman/go.emoji"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
+	eastasianwidth "github.com/moznion/go-unicode-east-asian-width"
 	"golang.org/x/image/font"
 )
 
@@ -55,21 +56,24 @@ func AddFontWithPathInFs(path string, fsys fs.FS) error {
 }
 
 func TextSize(label string, fontSize float64) *Size {
-	return NewSize(fontSize*2*FontLen(label), (fontSize+float64(int64(fontSize)>>6))*2)
+	return NewSize(fontSize*FontLen(label), (fontSize+float64(int64(fontSize)>>6))*2)
 }
 
 func FontLen(str string) float64 {
 	var count float64
-	for _, v := range str {
-		count++
-		if unicode.Is(unicode.Nl, v) {
-			continue
-		}
 
+	str = emoji.ReplaceEmoji(str, func(emoji string) string {
+		count += 4
+		return ""
+	})
+
+	for _, v := range []rune(str) {
 		count++
+		if eastasianwidth.IsFullwidth(v) {
+			count++
+		}
 	}
-	return count / 2
-	// return float64(len(str) * 2)
+	return count
 }
 
 func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, fontSize float64) {

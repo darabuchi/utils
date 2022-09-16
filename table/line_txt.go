@@ -67,6 +67,8 @@ func (p *LineTxt) MinSize() *Size {
 		if s.Width > size.Width {
 			size.Width = s.Width
 		}
+
+		size.Width += p.fontSize * 2
 	}
 
 	return size

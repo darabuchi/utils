@@ -26,6 +26,5 @@ var exitSignal = []os.Signal{
 	syscall.SIGTSTP,
 	syscall.SIGPWR,
 	syscall.SIGPIPE,
-	syscall.SIGSTKFLT,
 	syscall.SIGFPE,
 }

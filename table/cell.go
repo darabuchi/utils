@@ -10,3 +10,9 @@ type Cell interface {
 	setSize(*Size)
 	Size() *Size
 }
+
+type FlowGraph interface {
+	Cell
+
+	AddData(data ...float64) FlowGraph
+}
