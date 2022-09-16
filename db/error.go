@@ -1,0 +1,9 @@
+package db
+
+import (
+	"strings"
+)
+
+func IsUniqueIndexConflictErr(err error) bool {
+	return strings.Contains(err.Error(), "Error 1062: Duplicate entry")
+}
