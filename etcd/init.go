@@ -20,7 +20,7 @@ func Connect(c Config) error {
 		AutoSyncInterval:     time.Second,
 		DialTimeout:          5 * time.Second,
 		DialKeepAliveTime:    time.Second,
-		DialKeepAliveTimeout: time.Hour,
+		DialKeepAliveTimeout: time.Minute,
 		MaxCallSendMsgSize:   0,
 		MaxCallRecvMsgSize:   0,
 		Username:             "",

@@ -5,7 +5,6 @@ go 1.16
 require (
 	cloud.google.com/go/compute v1.10.0 // indirect
 	github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc
-	github.com/ClickHouse/ch-go v0.48.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0 // indirect
 	github.com/GoogleCloudPlatform/cloudsql-proxy v1.32.0
 	github.com/VividCortex/ewma v1.2.0

@@ -6,7 +6,6 @@ import (
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 
 	"github.com/darabuchi/log"
-	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -39,8 +38,8 @@ func Connect(c Config) error {
 		})
 	case Sqlserver:
 		d = sqlserver.Open(c.Dsn)
-	case Clickhouse:
-		d = clickhouse.Open(c.Dsn)
+	// case Clickhouse:
+	// 	d = clickhouse.Open(c.Dsn)
 	default:
 		return errors.New("unknown database")
 	}
