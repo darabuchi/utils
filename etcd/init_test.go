@@ -1,6 +1,7 @@
 package etcd
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -16,12 +17,13 @@ func TestWatch(t *testing.T) {
 		return
 	}
 
-	Watch("test", func(event Event) {
+	WatchPrefix("test", func(event Event) {
+		log.Info(event.Key)
 		log.Info(event.Type)
 	})
 
 	for i := 0; i < 10; i++ {
-		Set("test", time.Now().String())
+		Set(fmt.Sprintf("test-%d", i), time.Now().String())
 		time.Sleep(time.Second * 3)
 	}
 }

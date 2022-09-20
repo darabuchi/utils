@@ -85,6 +85,36 @@ func Watch(key string, logic func(event Event)) {
 	}()
 }
 
+func WatchPrefix(key string, logic func(event Event)) {
+	wc := cli.Watch(context.Background(), key, clientv3.WithPrefix())
+	go func() {
+		for {
+			select {
+			case v := <-wc:
+				for _, event := range v.Events {
+					logic(Event{
+						Key:   string(event.Kv.Key),
+						Value: string(event.Kv.Value),
+
+						Version: event.Kv.Version,
+
+						Type: func() EventType {
+							switch event.Type {
+							case mvccpb.PUT:
+								return Changed
+							case mvccpb.DELETE:
+								return Deleted
+							default:
+								return ""
+							}
+						}(),
+					})
+				}
+			}
+		}
+	}()
+}
+
 func Set(key string, val interface{}) error {
 	_, err := cli.Put(context.TODO(), key, utils.ToString(val))
 	if err != nil {
