@@ -20,16 +20,18 @@ func Connect(c Config) error {
 		AutoSyncInterval:     time.Second,
 		DialTimeout:          5 * time.Second,
 		DialKeepAliveTime:    time.Second,
-		DialKeepAliveTimeout: time.Minute,
+		DialKeepAliveTimeout: time.Second,
 		MaxCallSendMsgSize:   0,
 		MaxCallRecvMsgSize:   0,
+		TLS:                  nil,
 		Username:             "",
 		Password:             "",
 		RejectOldCluster:     true,
 		DialOptions:          nil,
 		Context:              nil,
 		Logger:               zap.NewNop(),
-		PermitWithoutStream:  false,
+		LogConfig:            nil,
+		PermitWithoutStream:  true,
 	})
 	if err != nil {
 		log.Errorf("err:%v", err)
@@ -95,6 +97,7 @@ func Set(key string, val interface{}) error {
 
 func SetEx(key string, val interface{}, timeout time.Duration) error {
 	lease := clientv3.NewLease(cli)
+	defer lease.Close()
 
 	leaseRsp, err := lease.Grant(context.TODO(), int64(timeout.Seconds()))
 	if err != nil {

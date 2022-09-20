@@ -29,7 +29,7 @@ const (
 )
 
 func Speed2Str(speed float64) string {
-	return Speed2bps(speed)
+	return Speed2Bs(speed)
 }
 
 func Speed2bps(speed float64) string {
@@ -47,6 +47,24 @@ func Speed2bps(speed float64) string {
 		return fmt.Sprintf("%.2fGbps", speed/(128*1024*1024))
 	} else {
 		return fmt.Sprintf("%.2fTbps", speed/(128*1024*1024*1024))
+	}
+}
+
+func Speed2Bs(speed float64) string {
+	if speed < 0 {
+		return "——"
+	} else if speed == 0 {
+		return "0bps"
+	} else if speed < 1024 {
+		return fmt.Sprintf("%.2fB/s", speed)
+	} else if speed < (1024 * 1024) {
+		return fmt.Sprintf("%.2fKb/s", speed/1024)
+	} else if speed < (1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fMb/s", speed/(1024*1024))
+	} else if speed < (1024 * 1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fGb/s", speed/(1024*1024*1024))
+	} else {
+		return fmt.Sprintf("%.2fTb/s", speed/(1024*1024*1024*1024))
 	}
 }
 

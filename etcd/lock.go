@@ -6,26 +6,38 @@ import (
 	"time"
 
 	"github.com/darabuchi/log"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 )
 
 type Mutex struct {
 	key     string
-	timeout time.Duration
 	lock    *concurrency.Mutex
+	leaseId clientv3.LeaseID
 }
 
-func NewMutex(key string, timeout time.Duration) *Mutex {
+func NewMutex(key string) *Mutex {
 	p := Mutex{
-		key:     key,
-		timeout: timeout,
+		key: key,
 	}
 
 	return &p
 }
 
 func (p *Mutex) Lock() error {
-	session, err := concurrency.NewSession(cli, concurrency.WithTTL(int(p.timeout.Seconds())))
+	lease := clientv3.NewLease(cli)
+	defer lease.Close()
+
+	leaseRsp, err := lease.Grant(context.TODO(), 3)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+	log.Info(leaseRsp)
+
+	p.leaseId = leaseRsp.ID
+
+	session, err := concurrency.NewSession(cli, concurrency.WithLease(p.leaseId))
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return err
@@ -43,7 +55,18 @@ func (p *Mutex) Lock() error {
 }
 
 func (p *Mutex) LockWithTimeout(timeout time.Duration) error {
-	session, err := concurrency.NewSession(cli, concurrency.WithTTL(int(p.timeout.Seconds())))
+	lease := clientv3.NewLease(cli)
+	defer lease.Close()
+
+	leaseRsp, err := lease.Grant(context.TODO(), 3)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	p.leaseId = leaseRsp.ID
+
+	session, err := concurrency.NewSession(cli, concurrency.WithLease(p.leaseId))
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return err
@@ -75,10 +98,38 @@ func (p *Mutex) LockWithTimeout(timeout time.Duration) error {
 }
 
 func (p *Mutex) Unlock() error {
-	err := p.lock.Unlock(context.TODO())
+	lease := clientv3.NewLease(cli)
+	defer lease.Close()
+
+	_, err := lease.Revoke(context.TODO(), p.leaseId)
+	if err != nil {
+		log.Errorf("err:%v", err)
+	}
+
+	err = p.lock.Unlock(context.TODO())
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return err
+	}
+
+	return nil
+}
+
+func (p *Mutex) WhenLocked(logic func() error) error {
+	err := p.Lock()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	e := logic()
+	err = p.Unlock()
+	if e != nil {
+		log.Errorf("err:%v", e)
+		return e
+	}
+	if err != nil {
+		log.Errorf("err:%v", err)
 	}
 
 	return nil

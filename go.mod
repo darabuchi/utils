@@ -5,7 +5,6 @@ go 1.16
 require (
 	cloud.google.com/go/compute v1.10.0 // indirect
 	github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc
-	github.com/ClickHouse/clickhouse-go/v2 v2.3.0 // indirect
 	github.com/GoogleCloudPlatform/cloudsql-proxy v1.32.0
 	github.com/VividCortex/ewma v1.2.0
 	github.com/aofei/sandid v1.2.1 // indirect
@@ -22,12 +21,12 @@ require (
 	github.com/gookit/color v1.5.2
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
-	github.com/klauspost/compress v1.15.10 // indirect
 	github.com/moznion/go-unicode-east-asian-width v0.0.0-20140622124307-0231aeb79f9b
 	github.com/nsqio/nsq v1.2.1
 	github.com/onsi/gomega v1.20.0 // indirect
 	github.com/petermattis/goid v0.0.0-20220824145935-af5520614cb6 // indirect
 	github.com/shomali11/xredis v0.0.0-20190608143638-0b54a6bbf40b
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
@@ -39,7 +38,6 @@ require (
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
 	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/driver/clickhouse v0.4.2
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/driver/postgres v1.3.9
 	gorm.io/driver/sqlite v1.3.6
