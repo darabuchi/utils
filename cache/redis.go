@@ -1,10 +1,10 @@
 package cache
 
 import (
-	"encoding/json"
 	"strconv"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/garyburd/redigo/redis"
@@ -13,7 +13,11 @@ import (
 
 var client *xredis.Client
 
-func Init(addr string, db int, password string) error {
+func Connect(addr string, db int, password string) error {
+	if client != nil {
+		return nil
+	}
+
 	client = xredis.NewClient(&redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp", addr,
@@ -135,7 +139,7 @@ func GetJson(key string, j interface{}) error {
 		}
 		return err
 	}
-	err = json.Unmarshal([]byte(val), j)
+	err = sonic.Unmarshal([]byte(val), j)
 	if err != nil {
 		log.Errorf("err:%s", err)
 		return err

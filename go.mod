@@ -9,6 +9,7 @@ require (
 	github.com/VividCortex/ewma v1.2.0
 	github.com/aofei/sandid v1.2.1 // indirect
 	github.com/auyer/steganography v1.0.1
+	github.com/bytedance/sonic v1.5.0
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
 	github.com/darabuchi/log v0.0.0-20220726104220-e8c4cdea8d19
 	github.com/elliotchance/pie v1.39.0

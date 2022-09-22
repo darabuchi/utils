@@ -16,6 +16,10 @@ import (
 var _db *gorm.DB
 
 func Connect(c Config) error {
+	if _db != nil {
+		return nil
+	}
+
 	log.Infof("connecting to database %s ", c.Dsn)
 
 	var d gorm.Dialector

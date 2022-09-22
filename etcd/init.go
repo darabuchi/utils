@@ -2,8 +2,10 @@ package etcd
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"go.etcd.io/etcd/api/v3/mvccpb"
@@ -13,7 +15,15 @@ import (
 
 var cli *clientv3.Client
 
+var (
+	ErrNotFound = errors.New("key not found")
+)
+
 func Connect(c Config) error {
+	if cli != nil {
+		return nil
+	}
+
 	var err error
 	cli, err = clientv3.New(clientv3.Config{
 		Endpoints:            c.Addrs,
@@ -136,6 +146,39 @@ func SetEx(key string, val interface{}, timeout time.Duration) error {
 	}
 
 	_, err = cli.Put(context.TODO(), key, utils.ToString(val), clientv3.WithLease(leaseRsp.ID))
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	return nil
+}
+
+func Get(key string) ([]byte, error) {
+	resp, err := cli.Get(context.TODO(), key)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	for _, kv := range resp.Kvs {
+		if string(kv.Key) != key {
+			continue
+		}
+		return kv.Value, nil
+	}
+
+	return nil, ErrNotFound
+}
+
+func GetJson(key string, j interface{}) error {
+	val, err := Get(key)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	err = sonic.Unmarshal(val, j)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return err

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bytedance/sonic"
 	"go.uber.org/atomic"
 	"gopkg.in/yaml.v3"
 )
@@ -47,7 +48,7 @@ func NewMap(m map[string]interface{}) *Map {
 
 func NewMapWithJson(s []byte) (*Map, error) {
 	var m map[string]interface{}
-	err := json.Unmarshal(s, &m)
+	err := sonic.Unmarshal(s, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -442,14 +443,14 @@ func (p *Map) toMap(val interface{}) *Map {
 		return NewMap(nil)
 	case string:
 		var m map[string]interface{}
-		err := json.Unmarshal([]byte(x), &m)
+		err := sonic.Unmarshal([]byte(x), &m)
 		if err != nil {
 			return NewMap(nil)
 		}
 		return NewMap(m)
 	case []byte:
 		var m map[string]interface{}
-		err := json.Unmarshal(x, &m)
+		err := sonic.Unmarshal(x, &m)
 		if err != nil {
 			return NewMap(nil)
 		}
@@ -468,7 +469,7 @@ func (p *Map) toMap(val interface{}) *Map {
 			return NewMap(nil)
 		}
 		var m map[string]interface{}
-		err = json.Unmarshal(buf, &m)
+		err = sonic.Unmarshal(buf, &m)
 		if err != nil {
 			return NewMap(nil)
 		}

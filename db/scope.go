@@ -24,6 +24,10 @@ func Create(value interface{}) *gorm.DB {
 	return getDb().Create(value)
 }
 
+func Find(dest interface{}, conds ...interface{}) *gorm.DB {
+	return getDb().Find(dest, conds...)
+}
+
 func Model(model interface{}) *gorm.DB {
 	return getDb().Model(model)
 }

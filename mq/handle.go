@@ -1,12 +1,12 @@
 package mq
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"sync"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/nsqio/nsq/nsqd"
@@ -138,7 +138,7 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 				})
 
 				var m nsqMsg
-				err = json.Unmarshal(msg.Body, &m)
+				err = sonic.Unmarshal(msg.Body, &m)
 				if err != nil {
 					log.Errorf("err:%v", err)
 
@@ -172,7 +172,7 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 				}
 
 				req.Message = reflect.New(rt).Interface()
-				err = json.Unmarshal(req.Body, req.Message)
+				err = sonic.Unmarshal(req.Body, req.Message)
 				if err != nil {
 					log.Errorf("err:%v", err)
 				} else {

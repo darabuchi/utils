@@ -57,7 +57,12 @@ func Int2Ip(ip int64) net.IP {
 }
 
 func IsLocalIp(ip string) bool {
-	if !IsIp(ip) {
+	i := net.ParseIP(ip)
+	if i == nil {
+		return false
+	}
+
+	if i.To4() == nil {
 		return false
 	}
 
