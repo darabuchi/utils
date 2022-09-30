@@ -7,7 +7,7 @@ import (
 )
 
 func FreqCheck(key string, limit int64, timeout time.Duration) (bool, error) {
-	val, err := client.Incr(key)
+	val, err := Incr(key)
 	if err != nil {
 		log.Errorf("err:%s", err)
 		return false, err
@@ -20,7 +20,7 @@ func FreqCheck(key string, limit int64, timeout time.Duration) (bool, error) {
 
 	if val == 1 {
 		for i := 0; i < 3; i++ {
-			_, err = client.Expire(key, int64(timeout.Seconds()))
+			_, err = Expire(key, timeout)
 			if err != nil {
 				log.Errorf("err:%v", err)
 				continue
@@ -57,7 +57,7 @@ func FreqTryLock(key string, limit int64, timeout time.Duration) (time.Duration,
 
 	if val == 1 {
 		for i := 0; i < 3; i++ {
-			_, err = client.Expire(key, int64(timeout.Seconds()))
+			_, err = Expire(key, (timeout))
 			if err != nil {
 				log.Errorf("err:%v", err)
 				continue

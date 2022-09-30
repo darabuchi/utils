@@ -14,14 +14,14 @@ import (
 	"golang.org/x/image/font"
 )
 
-var fontList []*truetype.Font
+var FontList []*truetype.Font
 
 const (
 	defaultFontSize = 18
 )
 
 func AddFount(f *truetype.Font) {
-	fontList = append(fontList, f)
+	FontList = append(FontList, f)
 }
 
 func AddFontWithBuf(fontBuf []byte) error {
@@ -46,6 +46,7 @@ func AddFontWithPath(path string) error {
 }
 
 func AddFontWithPathInFs(path string, fsys fs.FS) error {
+	log.Infof("add font %s", path)
 	fontBuf, err := utils.FileReadWithFs(path, fsys)
 	if err != nil {
 		log.Errorf("err:%v", err)
@@ -83,7 +84,7 @@ func DrawFont(dst *image.RGBA, src image.Image, x, y float64, label string, font
 	d.Src = src
 
 	face := new(multiface.Face)
-	for _, f := range fontList {
+	for _, f := range FontList {
 		face.AddTruetypeFace(truetype.NewFace(f, &truetype.Options{Size: fontSize, DPI: 144}), f)
 	}
 	d.Face = face

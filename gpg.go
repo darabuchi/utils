@@ -3,13 +3,14 @@ package utils
 import (
 	"bytes"
 	"crypto"
+	"math/rand"
+	"time"
+
 	"github.com/darabuchi/log"
 	"github.com/jchavannes/go-pgp/pgp"
 	"golang.org/x/crypto/openpgp"
 	"golang.org/x/crypto/openpgp/armor"
 	"golang.org/x/crypto/openpgp/packet"
-	"math/rand"
-	"time"
 )
 
 func GpgEncrypt(pubKey string, msg string) ([]byte, error) {

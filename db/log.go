@@ -12,10 +12,13 @@ import (
 )
 
 type Logger struct {
+	logger *log.Logger
 }
 
 func NewLogger() *Logger {
-	l := &Logger{}
+	l := &Logger{
+		logger: log.Clone().SetCallerDepth(5),
+	}
 	l.LogMode(logger.Info)
 	return l
 }
@@ -23,29 +26,29 @@ func NewLogger() *Logger {
 func (l *Logger) LogMode(logLevel logger.LogLevel) logger.Interface {
 	switch logLevel {
 	case logger.Silent:
-		log.SetLevel(log.TraceLevel)
+		l.logger.SetLevel(log.TraceLevel)
 	case logger.Error:
-		log.SetLevel(log.ErrorLevel)
+		l.logger.SetLevel(log.ErrorLevel)
 	case logger.Warn:
-		log.SetLevel(log.WarnLevel)
+		l.logger.SetLevel(log.WarnLevel)
 	case logger.Info:
-		log.SetLevel(log.InfoLevel)
+		l.logger.SetLevel(log.InfoLevel)
 	default:
-		log.SetLevel(log.DebugLevel)
+		l.logger.SetLevel(log.DebugLevel)
 	}
 	return l
 }
 
 func (l *Logger) Info(ctx context.Context, s string, i ...interface{}) {
-	log.Infof(s, i...)
+	l.logger.Infof(s, i...)
 }
 
 func (l *Logger) Warn(ctx context.Context, s string, i ...interface{}) {
-	log.Warnf(s, i...)
+	l.logger.Warnf(s, i...)
 }
 
 func (l *Logger) Error(ctx context.Context, s string, i ...interface{}) {
-	log.Errorf(s, i...)
+	l.logger.Errorf(s, i...)
 }
 
 func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
@@ -56,7 +59,7 @@ func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 	}
 
 	sql, rowsAffected := fc()
-	log.Infof("%s %s %s %s",
+	l.logger.Infof("%s %s %s %s",
 		color.Yellow.Sprintf("%s:%d", callerName, callerLine),
 		color.Blue.Sprintf("[%s]", time.Since(begin)),
 		strings.ReplaceAll(sql, "\n", " "),
