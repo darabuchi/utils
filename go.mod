@@ -23,6 +23,7 @@ require (
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
 	github.com/klauspost/cpuid/v2 v2.1.1 // indirect
+	github.com/mcuadros/go-defaults v1.2.0
 	github.com/moznion/go-unicode-east-asian-width v0.0.0-20140622124307-0231aeb79f9b
 	github.com/nsqio/nsq v1.2.1
 	github.com/onsi/gomega v1.20.0 // indirect
