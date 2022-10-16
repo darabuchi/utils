@@ -26,7 +26,7 @@ func NewErrorWithCode(code int32, format string, a ...interface{}) *Error {
 }
 
 func (p *Error) Error() string {
-	return p.Message
+	return fmt.Sprintf("code:%d,msg:%s", p.ErrCode, p.Message)
 }
 
 func (p *Error) SetNeedRetry() *Error {

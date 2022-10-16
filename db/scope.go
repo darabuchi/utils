@@ -7,8 +7,7 @@ import (
 
 func getDb() *gorm.DB {
 	return _db.Session(&gorm.Session{
-		NewDB:             true,
-		AllowGlobalUpdate: true,
+		NewDB: true,
 	})
 }
 

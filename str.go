@@ -2,6 +2,7 @@ package utils
 
 import (
 	"strings"
+	"unicode/utf16"
 )
 
 func ShortStr4Web(str string, max int) string {
@@ -24,4 +25,8 @@ func ShortStr(str string, max int) string {
 		return str[:max]
 	}
 	return str
+}
+
+func Utf16KLen(str string) int {
+	return len(utf16.Encode([]rune(str)))
 }

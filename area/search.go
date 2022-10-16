@@ -18,3 +18,12 @@ func GetCountryName(code string, languageCode language.LanguageCode) string {
 
 	return code
 }
+
+func GetCountryBanner(code string) string {
+	code = strings.ToUpper(code)
+	if c, ok := CountryCodeMap[code]; ok {
+		return c.Banner
+	}
+
+	return code
+}

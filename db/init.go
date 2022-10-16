@@ -15,12 +15,12 @@ import (
 
 var _db *gorm.DB
 
-func Connect(c Config) error {
+func Connect(c Config, tables ...interface{}) error {
 	if _db != nil {
 		return nil
 	}
 
-	log.Infof("connecting to database %s ", c.Dsn)
+	log.Infof("connecting to database (%s)%s ", c.Database, c.Dsn)
 
 	var d gorm.Dialector
 	switch c.Database {
@@ -55,11 +55,21 @@ func Connect(c Config) error {
 			TablePrefix:   "",
 			SingularTable: true,
 		},
+		FullSaveAssociations:                     false,
+		Logger:                                   NewLogger(),
+		NowFunc:                                  nil,
+		DryRun:                                   false,
 		PrepareStmt:                              true,
+		DisableAutomaticPing:                     false,
 		DisableForeignKeyConstraintWhenMigrating: true,
 		DisableNestedTransaction:                 true,
 		AllowGlobalUpdate:                        true,
-		Logger:                                   NewLogger(),
+		QueryFields:                              false,
+		CreateBatchSize:                          100,
+		ClauseBuilders:                           nil,
+		ConnPool:                                 nil,
+		Dialector:                                nil,
+		Plugins:                                  nil,
 	})
 	if err != nil {
 		log.Errorf("err:%v", err)
@@ -68,6 +78,24 @@ func Connect(c Config) error {
 
 	if c.Debug {
 		_db = _db.Debug()
+	}
+
+	conn, err := _db.DB()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	err = conn.Ping()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
+	}
+
+	err = AutoMigrate(tables...)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return err
 	}
 
 	return nil

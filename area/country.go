@@ -11,7 +11,7 @@ var (
 			Name:     "",
 			TelCode:  "",
 			Domain:   "",
-			Banner:   "",
+			Banner:   "🏴‍☠️",
 			ISO3:     "",
 			Capital:  "",
 			Timezone: "",
