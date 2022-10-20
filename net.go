@@ -30,18 +30,21 @@ func IsIpV6(ip string) bool {
 
 func Ip2Int(ipStr string) int64 {
 	bits := strings.Split(ipStr, ".")
+	if len(bits) < 3 {
+		return -1
+	}
 
-	b0, _ := strconv.Atoi(bits[0])
-	b1, _ := strconv.Atoi(bits[1])
-	b2, _ := strconv.Atoi(bits[2])
-	b3, _ := strconv.Atoi(bits[3])
+	b0, _ := strconv.ParseInt(bits[0], 10, 64)
+	b1, _ := strconv.ParseInt(bits[1], 10, 64)
+	b2, _ := strconv.ParseInt(bits[2], 10, 64)
+	b3, _ := strconv.ParseInt(bits[3], 10, 64)
 
 	var sum int64
 
-	sum += int64(b0) << 24
-	sum += int64(b1) << 16
-	sum += int64(b2) << 8
-	sum += int64(b3)
+	sum += b0 << 24
+	sum += b1 << 16
+	sum += b2 << 8
+	sum += b3
 
 	return sum
 }

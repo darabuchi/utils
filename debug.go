@@ -29,3 +29,13 @@ func CachePanicWithHandle(handle func(err interface{})) {
 		}
 	}
 }
+
+func PrintStack() {
+	st := debug.Stack()
+	if len(st) > 0 {
+		log.Info("dump stack:")
+		log.Info(string(st))
+	} else {
+		log.Info("stack is empty")
+	}
+}
