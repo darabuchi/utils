@@ -14,8 +14,6 @@ func Statistics(key string, duration time.Duration) {
 		key = fmt.Sprintf("statistics:%s:hour:%s", key, time.Now().Format("2006010215"))
 	case xtime.Day:
 		key = fmt.Sprintf("statistics:%s:day:%s", key, time.Now().Format("20060102"))
-	// case xtime.Week:
-	// 	key = fmt.Sprintf("statistics:%s:weeb:%s", key, time.Now().Format("20060102"))
 	case xtime.Month:
 		key = fmt.Sprintf("statistics:%s:month:%s", key, time.Now().Format("200601"))
 	}
@@ -45,4 +43,22 @@ func Statistics(key string, duration time.Duration) {
 			}
 		}
 	}
+}
+
+func GetStatistics(key string, duration time.Duration, t time.Time) int64 {
+	switch duration {
+	case xtime.Hour:
+		key = fmt.Sprintf("statistics:%s:hour:%s", key, t.Format("2006010215"))
+	case xtime.Day:
+		key = fmt.Sprintf("statistics:%s:day:%s", key, t.Format("20060102"))
+	case xtime.Month:
+		key = fmt.Sprintf("statistics:%s:month:%s", key, t.Format("200601"))
+	}
+
+	cnt, err := GetInt64(key)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return 0
+	}
+	return cnt
 }
