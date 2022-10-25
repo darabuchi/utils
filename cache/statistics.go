@@ -23,6 +23,8 @@ func getStatisticsKey(key string, duration time.Duration, t time.Time) string {
 		return fmt.Sprintf("statistics:%s:week:%04d%02d", key, year, week)
 	case xtime.Month:
 		return fmt.Sprintf("statistics:%s:month:%s", key, time.Now().Format("200601"))
+	case xtime.Year:
+		return fmt.Sprintf("statistics:%s:year:%s", key, time.Now().Format("2006"))
 	default:
 		return key
 	}
