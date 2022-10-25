@@ -57,13 +57,23 @@ func statisticsIncrBy(key string, duration time.Duration) {
 			if err != nil {
 				log.Errorf("err:%v", err)
 			}
+		case xtime.Week:
+			_, err = Expire(key, xtime.Week+xtime.Day*3)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
 		case xtime.Month:
 			_, err = Expire(key, xtime.Month+xtime.Week)
 			if err != nil {
 				log.Errorf("err:%v", err)
 			}
+		case xtime.Year:
+			_, err = Expire(key, xtime.Year+xtime.Week)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
 		default:
-			_, err = Expire(key, duration+xtime.Week)
+			_, err = Expire(key, duration+xtime.Month)
 			if err != nil {
 				log.Errorf("err:%v", err)
 			}
