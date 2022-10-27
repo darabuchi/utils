@@ -938,8 +938,10 @@ func (p *Map) ToMap() map[string]interface{} {
 			} else {
 				m[k] = x
 			}
+		case *Map:
+			m[k] = x.ToMap()
 		default:
-			m[k] = p.toMap(value).ToMap()
+			m[k] = x
 		}
 
 		return true

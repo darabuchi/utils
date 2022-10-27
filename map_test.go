@@ -15,6 +15,7 @@ func TestNewMap(t *testing.T) {
 	// log.Info(m.Get("a.b"))
 	// log.Info(m.Get("a.d"))
 	log.Info(m.GetSlice("a"))
+	log.Info(ToString(m.ToMap()))
 }
 
 func TestNewJson(t *testing.T) {
