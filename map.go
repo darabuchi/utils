@@ -921,11 +921,6 @@ func (p *Map) ToMap() map[string]interface{} {
 		k := ToString(key)
 
 		switch x := value.(type) {
-		case bool,
-			int, int8, int16, int32, int64,
-			uint, uint8, uint16, uint32, uint64,
-			string, []byte:
-			m[k] = x
 		case float32:
 			if math.Floor(float64(x)) == float64(x) {
 				m[k] = int32(x)
@@ -940,6 +935,11 @@ func (p *Map) ToMap() map[string]interface{} {
 			}
 		case *Map:
 			m[k] = x.ToMap()
+		case bool,
+			int, int8, int16, int32, int64,
+			uint, uint8, uint16, uint32, uint64,
+			string, []byte:
+			m[k] = x
 		default:
 			m[k] = x
 		}
