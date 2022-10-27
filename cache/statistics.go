@@ -32,20 +32,26 @@ func getStatisticsKey(key string, duration time.Duration, t time.Time) string {
 
 func StatisticsIncr(key string, durations ...time.Duration) {
 	for _, duration := range durations {
-		statisticsIncrBy(key, duration)
+		statisticsIncrBy(key, duration, 1)
 	}
 }
 
-func statisticsIncrBy(key string, duration time.Duration) {
+func StatisticsIncrBy(key string, val int64, durations ...time.Duration) {
+	for _, duration := range durations {
+		statisticsIncrBy(key, duration, val)
+	}
+}
+
+func statisticsIncrBy(key string, duration time.Duration, val int64) {
 	key = getStatisticsKey(key, duration, time.Now())
 
-	cnt, err := Incr(key)
+	cnt, err := IncrBy(key, val)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return
 	}
 
-	if cnt == 1 {
+	if cnt == val {
 		switch duration {
 		case xtime.Hour:
 			_, err = Expire(key, xtime.Day*3)
