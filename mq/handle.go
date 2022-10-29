@@ -91,8 +91,6 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 				defer log.DelTrace()
 				log.Infof("handel %s %s", topicName.String(), channelName.String())
 
-				finishC := make(chan bool, 1)
-
 				if handel.MaxAttempts > 0 && msg.Attempts > handel.MaxAttempts {
 					err := channel.FinishMessage(clientId, msg.ID)
 					if err != nil {
@@ -104,19 +102,20 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 
 				msg.Attempts++
 
-				err := channel.StartInFlightTimeout(msg, clientId, time.Second*12)
+				err := channel.StartInFlightTimeout(msg, clientId, time.Minute)
 				if err != nil {
 					log.Errorf("err:%v", err)
 					return
 				}
 
+				finishC := make(chan bool, 1)
 				go func() {
 					ticker := time.NewTicker(time.Second * 5)
 					defer ticker.Stop()
 					for {
 						select {
 						case <-ticker.C:
-							err = channel.TouchMessage(clientId, msg.ID, time.Second*12)
+							err = channel.TouchMessage(clientId, msg.ID, time.Minute)
 							if err != nil {
 								log.Errorf("err:%v", err)
 							}

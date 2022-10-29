@@ -13,17 +13,14 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20220526154910-8bf9453eb81a // indirect
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
 	github.com/darabuchi/log v0.0.0-20220923020052-f1a3dc411901
-	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
 	github.com/elliotchance/pie v1.39.0
 	github.com/garyburd/redigo v1.6.4
 	github.com/glebarez/go-sqlite v1.19.2 // indirect
 	github.com/glebarez/sqlite v1.5.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-xman/go.emoji v0.1.2
-	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.2
-	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
 	github.com/klauspost/cpuid/v2 v2.1.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
