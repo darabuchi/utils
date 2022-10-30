@@ -191,7 +191,12 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 					}
 				}
 
+				start := time.Now()
 				rsp, err := handel.HandleFunc(req)
+				duration := time.Since(start)
+				defer func() {
+					log.Infof("topic:%s[%s],msg:%s,duration:%v", topicName, channelName, msg.ID, duration)
+				}()
 				if err != nil {
 					log.Errorf("err:%v", err)
 
