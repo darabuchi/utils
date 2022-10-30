@@ -87,6 +87,8 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 	for i := int64(0); i < handel.MaxProcessCnt; i++ {
 		go func(clientId int64) {
 			logic := func(msg *nsqd.Message) {
+				defer utils.CachePanic()
+
 				log.SetTrace(msg.ID.String() + "." + topicName.String() + "." + channelName.String())
 				defer log.DelTrace()
 				log.Infof("handel %s %s", topicName.String(), channelName.String())
@@ -265,6 +267,6 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 
 				logic(msg)
 			}
-		}(int64(i))
+		}(i)
 	}
 }
