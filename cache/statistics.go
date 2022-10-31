@@ -15,16 +15,16 @@ func Statistics(key string, durations ...time.Duration) {
 func getStatisticsKey(key string, duration time.Duration, t time.Time) string {
 	switch duration {
 	case xtime.Hour:
-		return fmt.Sprintf("statistics:%s:hour:%s", key, time.Now().Format("2006010215"))
+		return fmt.Sprintf("statistics:%s:hour:%s", key, t.Format("2006010215"))
 	case xtime.Day:
-		return fmt.Sprintf("statistics:%s:day:%s", key, time.Now().Format("20060102"))
+		return fmt.Sprintf("statistics:%s:day:%s", key, t.Format("20060102"))
 	case xtime.Week:
 		year, week := t.ISOWeek()
 		return fmt.Sprintf("statistics:%s:week:%04d%02d", key, year, week)
 	case xtime.Month:
-		return fmt.Sprintf("statistics:%s:month:%s", key, time.Now().Format("200601"))
+		return fmt.Sprintf("statistics:%s:month:%s", key, t.Format("200601"))
 	case xtime.Year:
-		return fmt.Sprintf("statistics:%s:year:%s", key, time.Now().Format("2006"))
+		return fmt.Sprintf("statistics:%s:year:%s", key, t.Format("2006"))
 	default:
 		return key
 	}
