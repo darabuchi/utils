@@ -29,7 +29,7 @@ const (
 )
 
 func Speed2Str(speed float64) string {
-	return Speed2Bs(speed)
+	return Speed2bps(speed)
 }
 
 func Speed2bps(speed float64) string {
