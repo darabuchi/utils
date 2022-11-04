@@ -42,6 +42,12 @@ func StatisticsIncrBy(key string, val int64, durations ...time.Duration) {
 	}
 }
 
+func StatisticsIncrByFloat(key string, val float64, durations ...time.Duration) {
+	for _, duration := range durations {
+		statisticsIncrByFloat(key, duration, val)
+	}
+}
+
 func statisticsIncrBy(key string, duration time.Duration, val int64) {
 	key = getStatisticsKey(key, duration, time.Now())
 
@@ -87,10 +93,66 @@ func statisticsIncrBy(key string, duration time.Duration, val int64) {
 	}
 }
 
+func statisticsIncrByFloat(key string, duration time.Duration, val float64) {
+	key = getStatisticsKey(key, duration, time.Now())
+
+	cnt, err := IncrByFloat(key, val)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	if cnt == val {
+		switch duration {
+		case xtime.Hour:
+			_, err = Expire(key, xtime.Day*3)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		case xtime.Day:
+			_, err = Expire(key, xtime.Week)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		case xtime.Week:
+			_, err = Expire(key, xtime.Week+xtime.Day*3)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		case xtime.Month:
+			_, err = Expire(key, xtime.Month+xtime.Week)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		case xtime.Year:
+			_, err = Expire(key, xtime.Year+xtime.Week)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		default:
+			_, err = Expire(key, duration+xtime.Month)
+			if err != nil {
+				log.Errorf("err:%v", err)
+			}
+		}
+	}
+}
+
 func GetStatistics(key string, duration time.Duration, t time.Time) int64 {
 	key = getStatisticsKey(key, duration, t)
 
 	cnt, err := GetInt64(key)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return 0
+	}
+	return cnt
+}
+
+func GetStatisticsForFload(key string, duration time.Duration, t time.Time) float64 {
+	key = getStatisticsKey(key, duration, t)
+
+	cnt, err := GetFloat64(key)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return 0

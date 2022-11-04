@@ -58,6 +58,10 @@ func IncrBy(key string, value int64) (int64, error) {
 	return client.IncrBy(key, value)
 }
 
+func IncrByFloat(key string, increment float64) (float64, error) {
+	return client.IncrByFloat(key, increment)
+}
+
 func DecrBy(key string, value int64) (int64, error) {
 	return client.DecrBy(key, value)
 }
@@ -159,6 +163,24 @@ func GetInt64(key string) (int64, error) {
 	}
 
 	num, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return num, nil
+}
+
+func GetFloat64(key string) (float64, error) {
+	val, err := Get(key)
+	if err != nil {
+		if err == redis.ErrNil {
+			return 0, nil
+		}
+
+		return 0, err
+	}
+
+	num, err := strconv.ParseFloat(val, 64)
 	if err != nil {
 		return 0, err
 	}
