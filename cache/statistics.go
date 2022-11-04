@@ -149,7 +149,7 @@ func GetStatistics(key string, duration time.Duration, t time.Time) int64 {
 	return cnt
 }
 
-func GetStatisticsForFload(key string, duration time.Duration, t time.Time) float64 {
+func GetStatisticsForFloat(key string, duration time.Duration, t time.Time) float64 {
 	key = getStatisticsKey(key, duration, t)
 
 	cnt, err := GetFloat64(key)
