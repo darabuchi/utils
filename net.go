@@ -1,9 +1,8 @@
 package utils
 
 import (
+	"math/big"
 	"net"
-	"strconv"
-	"strings"
 )
 
 func IsIp(ip string) bool {
@@ -29,24 +28,33 @@ func IsIpV6(ip string) bool {
 }
 
 func Ip2Int(ipStr string) int64 {
-	bits := strings.Split(ipStr, ".")
-	if len(bits) < 3 {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
 		return -1
 	}
 
-	b0, _ := strconv.ParseInt(bits[0], 10, 64)
-	b1, _ := strconv.ParseInt(bits[1], 10, 64)
-	b2, _ := strconv.ParseInt(bits[2], 10, 64)
-	b3, _ := strconv.ParseInt(bits[3], 10, 64)
-
-	var sum int64
-
-	sum += b0 << 24
-	sum += b1 << 16
-	sum += b2 << 8
-	sum += b3
-
-	return sum
+	i := big.NewInt(0)
+	i.SetBytes(ip)
+	return i.Int64()
+	//
+	// bits := strings.Split(ipStr, ".")
+	// if len(bits) < 3 {
+	// 	return -1
+	// }
+	//
+	// b0, _ := strconv.ParseInt(bits[0], 10, 64)
+	// b1, _ := strconv.ParseInt(bits[1], 10, 64)
+	// b2, _ := strconv.ParseInt(bits[2], 10, 64)
+	// b3, _ := strconv.ParseInt(bits[3], 10, 64)
+	//
+	// var sum int64
+	//
+	// sum += b0 << 24
+	// sum += b1 << 16
+	// sum += b2 << 8
+	// sum += b3
+	//
+	// return sum
 }
 
 func Int2Ip(ip int64) net.IP {
