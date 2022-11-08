@@ -12,6 +12,8 @@ func TestIsLocalIp(t *testing.T) {
 
 func TestIpInt(t *testing.T) {
 	ipStr := "2400:8901::f03c:93ff:fe78:cac7"
-
 	t.Log(Int2Ip(Ip2Int(ipStr)).String() == ipStr)
+
+	t.Log(Ip2Int("60.73.56.108"))
+	t.Log(Int2Ip(1011431532))
 }

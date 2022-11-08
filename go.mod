@@ -19,6 +19,7 @@ require (
 	github.com/glebarez/sqlite v1.5.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-xman/go.emoji v0.1.2
+	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.2
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4
