@@ -294,6 +294,10 @@ func HIncrBy(key string, field string, increment int64) (int64, error) {
 	return client.HIncrBy(key, field, increment)
 }
 
+func HIncrByFloat(key string, field string, increment float64) (float64, error) {
+	return client.HIncrByFloat(key, field, increment)
+}
+
 func HDecr(key string, field string) (int64, error) {
 	return client.HDecr(key, field)
 }
