@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image"
 	"image/draw"
+	"image/jpeg"
 	"image/png"
 
 	"github.com/auyer/steganography"
@@ -52,6 +53,25 @@ var (
 
 func (p *Table) ToImg() (*bytes.Buffer, error) {
 	return p.ToPng()
+}
+
+func (p *Table) ToJpg() (*bytes.Buffer, error) {
+	img, err := p.toImg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	err = jpeg.Encode(&b, img, &jpeg.Options{
+		Quality: 100,
+	})
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	return &b, nil
 }
 
 func (p *Table) ToWebp() (*bytes.Buffer, error) {

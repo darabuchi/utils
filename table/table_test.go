@@ -84,6 +84,18 @@ func TestTable(t *testing.T) {
 		return
 	}
 
+	b, err = tb.ToJpg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	err = utils.FileWrite("test.jpg", b.String())
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
 	log.Info("finish")
 }
 
