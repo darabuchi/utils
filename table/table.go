@@ -12,6 +12,8 @@ import (
 	"github.com/darabuchi/utils"
 	"github.com/nickalie/go-webpbin"
 	"github.com/wcharczuk/go-chart/v2/drawing"
+	"golang.org/x/image/bmp"
+	"golang.org/x/image/tiff"
 )
 
 type Table struct {
@@ -53,6 +55,43 @@ var (
 
 func (p *Table) ToImg() (*bytes.Buffer, error) {
 	return p.ToPng()
+}
+
+func (p *Table) ToBmp() (*bytes.Buffer, error) {
+	img, err := p.toImg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	err = bmp.Encode(&b, img)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	return &b, nil
+}
+
+func (p *Table) ToTiff() (*bytes.Buffer, error) {
+	img, err := p.toImg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	err = tiff.Encode(&b, img, &tiff.Options{
+		Compression: tiff.Deflate,
+		Predictor:   true,
+	})
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	return &b, nil
 }
 
 func (p *Table) ToJpg() (*bytes.Buffer, error) {

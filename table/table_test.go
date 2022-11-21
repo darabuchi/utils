@@ -44,20 +44,20 @@ func TestTable(t *testing.T) {
 	}
 
 	tb := table.NewTable().
-			AddLine(
-				table.NewLineText().
-					SetText("💰 🇭🇰 Hong Kong 16").
-					SetFontSize(35).
-					SetAlignment(table.AlignCenter).
-					SetFgColor(drawing.ColorGreen).
-					SetBgColor(drawing.ColorBlue),
-				table.NewFlowCurve().
-					// table.NewFlowRate().
-					// table.NewFlowHistogram().
-					AddData(50, 200, 150).
-					SetFull(true).
-					SetFgColor(table.Purple),
-			).
+		AddLine(
+			table.NewLineText().
+				SetText("💰 🇭🇰 Hong Kong 16").
+				SetFontSize(35).
+				SetAlignment(table.AlignCenter).
+				SetFgColor(drawing.ColorGreen).
+				SetBgColor(drawing.ColorBlue),
+			table.NewFlowCurve().
+				// table.NewFlowRate().
+				// table.NewFlowHistogram().
+				AddData(50, 200, 150).
+				SetFull(true).
+				SetFgColor(table.Purple),
+		).
 		SetWmk("水印")
 
 	b, err := tb.ToImg()
@@ -91,6 +91,30 @@ func TestTable(t *testing.T) {
 	}
 
 	err = utils.FileWrite("test.jpg", b.String())
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	b, err = tb.ToTiff()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	err = utils.FileWrite("test.tiff", b.String())
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	b, err = tb.ToBmp()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	err = utils.FileWrite("test.bmp", b.String())
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return
