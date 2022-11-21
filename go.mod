@@ -14,6 +14,7 @@ require (
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
 	github.com/darabuchi/log v0.0.0-20220923020052-f1a3dc411901
 	github.com/elliotchance/pie v1.39.0
+	github.com/frankban/quicktest v1.14.4 // indirect
 	github.com/garyburd/redigo v1.6.4
 	github.com/glebarez/go-sqlite v1.19.2 // indirect
 	github.com/glebarez/sqlite v1.5.0
@@ -27,6 +28,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/moznion/go-unicode-east-asian-width v0.0.0-20140622124307-0231aeb79f9b
+	github.com/nickalie/go-webpbin v0.0.0-20220110095747-f10016bf2dc1
 	github.com/nsqio/nsq v1.2.1
 	github.com/onsi/gomega v1.20.0 // indirect
 	github.com/petermattis/goid v0.0.0-20221018141743-354ef7f2fd21 // indirect

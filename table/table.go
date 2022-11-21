@@ -9,6 +9,7 @@ import (
 	"github.com/auyer/steganography"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
+	"github.com/nickalie/go-webpbin"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
@@ -50,7 +51,44 @@ var (
 )
 
 func (p *Table) ToImg() (*bytes.Buffer, error) {
+	return p.ToPng()
+}
 
+func (p *Table) ToWebp() (*bytes.Buffer, error) {
+	img, err := p.toImg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	err = webpbin.Encode(&b, img)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	return &b, nil
+}
+
+func (p *Table) ToPng() (*bytes.Buffer, error) {
+	img, err := p.toImg()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	err = png.Encode(&b, img)
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return nil, err
+	}
+
+	return &b, nil
+}
+
+func (p *Table) toImg() (image.Image, error) {
 	imgSize := NewSize(0, 0)
 
 	// 找到最大的长宽
@@ -163,21 +201,22 @@ func (p *Table) ToImg() (*bytes.Buffer, error) {
 		}
 	}
 
-	var b bytes.Buffer
-
 	if p.steganography != nil {
+		var b bytes.Buffer
 		err := steganography.Encode(&b, img, []byte(utils.ToString(p.steganography)))
 		if err != nil {
 			log.Errorf("err:%v", err)
 			return nil, err
 		}
-	} else {
-		err := png.Encode(&b, img)
+
+		pngImg, err := png.Decode(&b)
 		if err != nil {
 			log.Errorf("err:%v", err)
 			return nil, err
 		}
+
+		return pngImg, nil
 	}
 
-	return &b, nil
+	return img, nil
 }

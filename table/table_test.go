@@ -71,6 +71,19 @@ func TestTable(t *testing.T) {
 		log.Errorf("err:%v", err)
 		return
 	}
+
+	b, err = tb.ToWebp()
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
+	err = utils.FileWrite("test.webp", b.String())
+	if err != nil {
+		log.Errorf("err:%v", err)
+		return
+	}
+
 	log.Info("finish")
 }
 
