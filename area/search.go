@@ -27,3 +27,11 @@ func GetCountryBanner(code string) string {
 
 	return code
 }
+
+func GetCountry(code string) *CountryInfo {
+	if c, ok := CountryCodeMap[code]; ok {
+		return c
+	}
+
+	return CountryCodeMap[""]
+}
