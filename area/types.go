@@ -16,4 +16,14 @@ type (
 		Timezone string                           `json:"timezone,omitempty"`
 		I18nName map[language.LanguageCode]string `json:"i18n_name,omitempty"`
 	}
+
+	AirPortInfo struct {
+		Code            string                           `json:"code,omitempty"`
+		Icao            string                           `json:"icao,omitempty"`
+		Name            string                           `json:"name,omitempty"`
+		CountryCode     string                           `json:"country_code,omitempty"`
+		Timezone        string                           `json:"timezone,omitempty"`
+		I18nName        map[language.LanguageCode]string `json:"i18n_name,omitempty"`
+		CountryI18nName map[language.LanguageCode]string `json:"country_i18n_name,omitempty"`
+	}
 )
