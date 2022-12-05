@@ -501,3 +501,51 @@ func ToFloat64Slice(val interface{}) []float64 {
 		return []float64{}
 	}
 }
+
+func ToUint64(val interface{}) uint64 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return uint64(x)
+	case int8:
+		return uint64(x)
+	case int16:
+		return uint64(x)
+	case int32:
+		return uint64(x)
+	case int64:
+		return uint64(x)
+	case uint:
+		return uint64(x)
+	case uint8:
+		return uint64(x)
+	case uint16:
+		return uint64(x)
+	case uint32:
+		return uint64(x)
+	case uint64:
+		return x
+	case float32:
+		return uint64(x)
+	case float64:
+		return uint64(x)
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return uint64(val)
+	case []byte:
+		val, err := strconv.ParseUint(string(x), 10, 16)
+		if err != nil {
+			return 0
+		}
+		return uint64(val)
+	default:
+		return 0
+	}
+}
