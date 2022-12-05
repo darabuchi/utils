@@ -654,61 +654,61 @@ func (p *Map) GetUint64Slice(key string) []uint64 {
 	case []bool:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []int:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []int8:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []int16:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []int32:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []int64:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []uint:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []uint8:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []uint16:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []uint32:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []uint64:
@@ -720,31 +720,31 @@ func (p *Map) GetUint64Slice(key string) []uint64 {
 	case []float32:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []float64:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []string:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case [][]byte:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	case []interface{}:
 		var v []uint64
 		for _, val := range x {
-			v = append(v, p.toUint64(val))
+			v = append(v, ToUint64(val))
 		}
 		return v
 	default:
