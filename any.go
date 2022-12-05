@@ -271,25 +271,21 @@ func ToBool(val interface{}) bool {
 		return x != 0
 	case string:
 		switch strings.ToLower(x) {
-		case "true", "1":
+		case "true", "1", "t", "y", "yes", "on":
 			return true
-		case "false", "0":
-			return false
-		case "":
+		case "false", "0", "f", "n", "no", "off":
 			return false
 		default:
-			return true
+			return strings.TrimSpace(x) != ""
 		}
 	case []byte:
 		switch string(bytes.ToLower(x)) {
-		case "true", "1":
+		case "true", "1", "t", "y", "yes", "on":
 			return true
-		case "false", "0":
-			return false
-		case "":
+		case "false", "0", "f", "n", "no", "off":
 			return false
 		default:
-			return true
+			return len(bytes.TrimSpace(x)) != 0
 		}
 	default:
 		return val == nil
