@@ -93,17 +93,22 @@ func (p *Map) Set(key string, value interface{}) {
 }
 
 func (p *Map) Get(key string) (interface{}, error) {
-	return p.get(key)
+	val, ok := p.get(key)
+	if !ok {
+		return nil, ErrNotFound
+	}
+
+	return val, nil
 }
 
-func (p *Map) get(key string) (interface{}, error) {
+func (p *Map) get(key string) (interface{}, bool) {
 	var val interface{}
 	var ok bool
 	if !p.cut.Load() {
 		if val, ok := p.data.Load(key); ok {
-			return val, nil
+			return val, true
 		}
-		return nil, ErrNotFound
+		return nil, false
 	}
 
 	seq := p.seq.Load()
@@ -117,12 +122,12 @@ func (p *Map) get(key string) (interface{}, error) {
 
 		val, ok = data.Load(k)
 		if !ok {
-			return nil, ErrNotFound
+			return nil, false
 		}
 
 		m = p.toMap(val)
 		if m == nil {
-			return nil, ErrNotFound
+			return nil, false
 		}
 
 		data = m.data
@@ -130,12 +135,12 @@ func (p *Map) get(key string) (interface{}, error) {
 
 	if len(keys) > 0 {
 		if val, ok = data.Load(keys[0]); ok {
-			return val, nil
+			return val, true
 		}
-		return nil, ErrNotFound
+		return nil, false
 	}
 
-	return nil, ErrNotFound
+	return nil, false
 }
 
 func CheckValueType(val interface{}) ValueType {
@@ -154,15 +159,17 @@ func CheckValueType(val interface{}) ValueType {
 }
 
 func (p *Map) Exists(key string) bool {
-	if _, ok := p.data.Load(key); ok {
-		return true
+	_, ok := p.get(key)
+	if !ok {
+		return false
 	}
-	return false
+
+	return true
 }
 
 func (p *Map) GetBool(key string) bool {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return false
 	}
 
@@ -170,8 +177,8 @@ func (p *Map) GetBool(key string) bool {
 }
 
 func (p *Map) GetInt(key string) int {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -179,8 +186,8 @@ func (p *Map) GetInt(key string) int {
 }
 
 func (p *Map) GetInt32(key string) int32 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -188,8 +195,8 @@ func (p *Map) GetInt32(key string) int32 {
 }
 
 func (p *Map) GetInt64(key string) int64 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -197,8 +204,8 @@ func (p *Map) GetInt64(key string) int64 {
 }
 
 func (p *Map) GetUint16(key string) uint16 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -250,8 +257,8 @@ func (p *Map) GetUint16(key string) uint16 {
 }
 
 func (p *Map) GetUint32(key string) uint32 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -307,8 +314,8 @@ func (p *Map) toUint32(val interface{}) uint32 {
 }
 
 func (p *Map) GetUint64(key string) uint64 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -364,8 +371,8 @@ func (p *Map) toUint64(val interface{}) uint64 {
 }
 
 func (p *Map) GetFloat64(key string) float64 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return 0
 	}
 
@@ -373,8 +380,8 @@ func (p *Map) GetFloat64(key string) float64 {
 }
 
 func (p *Map) GetString(key string) string {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return ""
 	}
 
@@ -382,8 +389,8 @@ func (p *Map) GetString(key string) string {
 }
 
 func (p *Map) GetBytes(key string) []byte {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return []byte("")
 	}
 
@@ -427,8 +434,8 @@ func (p *Map) GetBytes(key string) []byte {
 }
 
 func (p *Map) GetMap(key string) *Map {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return NewMap(nil)
 	}
 
@@ -478,8 +485,8 @@ func (p *Map) toMap(val interface{}) *Map {
 }
 
 func (p *Map) GetSlice(key string) []interface{} {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return nil
 	}
 
@@ -582,8 +589,8 @@ func (p *Map) GetSlice(key string) []interface{} {
 }
 
 func (p *Map) GetStringSlice(key string) []string {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return nil
 	}
 
@@ -686,8 +693,8 @@ func (p *Map) GetStringSlice(key string) []string {
 }
 
 func (p *Map) GetUint64Slice(key string) []uint64 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return nil
 	}
 
@@ -794,8 +801,8 @@ func (p *Map) GetUint64Slice(key string) []uint64 {
 }
 
 func (p *Map) GetInt64Slice(key string) []int64 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return nil
 	}
 
@@ -803,8 +810,8 @@ func (p *Map) GetInt64Slice(key string) []int64 {
 }
 
 func (p *Map) GetUint32Slice(key string) []uint32 {
-	val, err := p.get(key)
-	if err != nil {
+	val, ok := p.get(key)
+	if !ok {
 		return nil
 	}
 

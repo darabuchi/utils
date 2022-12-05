@@ -81,8 +81,8 @@ func (p *TrieTree) Del(words ...string) {
 }
 
 // 节点的删除分为如下种情况
-// 1. 前缀的删除：判断Count是否大于0， 标记IsWord 为false。
-// 3. 字符串的删除：
+//  1. 前缀的删除：判断Count是否大于0， 标记IsWord 为false。
+//  3. 字符串的删除：
 //     a. 如果是无分支，则整个删除。
 //     b. 如果有分支，仅删除不是共有前缀的部分。
 func (p *TrieTree) del(word string) {

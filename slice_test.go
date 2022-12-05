@@ -64,17 +64,17 @@ func pluckUint64(max uint64, b *testing.B) {
 }
 
 /*
-	goos: windows
-	goarch: amd64
-	pkg: github.com/darabuchi/utils
-	cpu: 11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz
-	BenchmarkPluckUint64_0-16               606172554                5.894 ns/op           0 B/op          0 allocs/op
-	BenchmarkPluckUint64_10-16               8633337               429.6 ns/op           136 B/op          4 allocs/op
-	BenchmarkPluckUint64_100-16              1525666              2379 ns/op             952 B/op          4 allocs/op
-	BenchmarkPluckUint64_1000-16              155276             22949 ns/op            8248 B/op          4 allocs/op
-	BenchmarkPluckUint64_2000-16               78535             44629 ns/op           16440 B/op          4 allocs/op
-	BenchmarkPluckUint64_5000-16               35017            102445 ns/op           41016 B/op          4 allocs/op
-	BenchmarkPluckUint64_10000-16              17898            210740 ns/op           81976 B/op          4 allocs/op
+goos: windows
+goarch: amd64
+pkg: github.com/darabuchi/utils
+cpu: 11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz
+BenchmarkPluckUint64_0-16               606172554                5.894 ns/op           0 B/op          0 allocs/op
+BenchmarkPluckUint64_10-16               8633337               429.6 ns/op           136 B/op          4 allocs/op
+BenchmarkPluckUint64_100-16              1525666              2379 ns/op             952 B/op          4 allocs/op
+BenchmarkPluckUint64_1000-16              155276             22949 ns/op            8248 B/op          4 allocs/op
+BenchmarkPluckUint64_2000-16               78535             44629 ns/op           16440 B/op          4 allocs/op
+BenchmarkPluckUint64_5000-16               35017            102445 ns/op           41016 B/op          4 allocs/op
+BenchmarkPluckUint64_10000-16              17898            210740 ns/op           81976 B/op          4 allocs/op
 */
 func BenchmarkPluckUint64_0(b *testing.B)     { pluckUint64(0, b) }
 func BenchmarkPluckUint64_10(b *testing.B)    { pluckUint64(10, b) }
@@ -172,18 +172,18 @@ func keyBy(max int64, b *testing.B) {
 }
 
 /*
-	λ go test -bench='KeyBy*' -benchmem -benchtime=3s
-	goos: windows
-	goarch: amd64
-	pkg: github.com/darabuchi/utils
-	cpu: 11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz
-	BenchmarkKeyB_0-16           24369027               150.7 ns/op            56 B/op          2 allocs/op
-	BenchmarkKeyBy_10-16           4481101               792.7 ns/op           371 B/op          4 allocs/op
-	BenchmarkKeyBy_100-16           525364              6070 ns/op            2920 B/op          5 allocs/op
-	BenchmarkKeyBy_1000-16           58640             60200 ns/op           41064 B/op          5 allocs/op
-	BenchmarkKeyBy_2000-16           30552            119240 ns/op           82024 B/op          5 allocs/op
-	BenchmarkKeyBy_5000-16           12266            291591 ns/op          163946 B/op          5 allocs/op
-	BenchmarkKeyBy_10000-16           5373            602209 ns/op          319594 B/op          5 allocs/op
+λ go test -bench='KeyBy*' -benchmem -benchtime=3s
+goos: windows
+goarch: amd64
+pkg: github.com/darabuchi/utils
+cpu: 11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz
+BenchmarkKeyB_0-16           24369027               150.7 ns/op            56 B/op          2 allocs/op
+BenchmarkKeyBy_10-16           4481101               792.7 ns/op           371 B/op          4 allocs/op
+BenchmarkKeyBy_100-16           525364              6070 ns/op            2920 B/op          5 allocs/op
+BenchmarkKeyBy_1000-16           58640             60200 ns/op           41064 B/op          5 allocs/op
+BenchmarkKeyBy_2000-16           30552            119240 ns/op           82024 B/op          5 allocs/op
+BenchmarkKeyBy_5000-16           12266            291591 ns/op          163946 B/op          5 allocs/op
+BenchmarkKeyBy_10000-16           5373            602209 ns/op          319594 B/op          5 allocs/op
 */
 func BenchmarkKeyBy_0(b *testing.B)     { keyBy(0, b) }
 func BenchmarkKeyBy_10(b *testing.B)    { keyBy(10, b) }
