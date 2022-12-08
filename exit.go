@@ -13,6 +13,10 @@ func GetExitSign() chan os.Signal {
 	return sigCh
 }
 
+func WaitExist()  {
+	<-GetExitSign()
+}
+
 func Exit() {
 	process, err := os.FindProcess(os.Getpid())
 	if err != nil {
