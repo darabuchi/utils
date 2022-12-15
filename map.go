@@ -262,55 +262,7 @@ func (p *Map) GetUint32(key string) uint32 {
 		return 0
 	}
 
-	return p.toUint32(val)
-}
-
-func (p *Map) toUint32(val interface{}) uint32 {
-	switch x := val.(type) {
-	case bool:
-		if x {
-			return 1
-		}
-		return 0
-	case int:
-		return uint32(x)
-	case int8:
-		return uint32(x)
-	case int16:
-		return uint32(x)
-	case int32:
-		return uint32(x)
-	case int64:
-		return uint32(x)
-	case uint:
-		return uint32(x)
-	case uint8:
-		return uint32(x)
-	case uint16:
-		return uint32(x)
-	case uint32:
-		return x
-	case uint64:
-		return uint32(x)
-	case float32:
-		return uint32(x)
-	case float64:
-		return uint32(x)
-	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
-		if err != nil {
-			return 0
-		}
-		return uint32(val)
-	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
-		if err != nil {
-			return 0
-		}
-		return uint32(val)
-	default:
-		return 0
-	}
+	return ToUint32(val)
 }
 
 func (p *Map) GetUint64(key string) uint64 {
@@ -771,55 +723,55 @@ func (p *Map) GetUint32Slice(key string) []uint32 {
 	case []bool:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []int:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []int8:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []int16:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []int32:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []int64:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []uint:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []uint8:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []uint16:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []uint32:
@@ -827,37 +779,37 @@ func (p *Map) GetUint32Slice(key string) []uint32 {
 	case []uint64:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []float32:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []float64:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []string:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case [][]byte:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	case []interface{}:
 		var v []uint32
 		for _, val := range x {
-			v = append(v, p.toUint32(val))
+			v = append(v, ToUint32(val))
 		}
 		return v
 	default:
