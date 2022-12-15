@@ -117,6 +117,102 @@ func ToInt(val interface{}) int {
 	}
 }
 
+func ToInt8(val interface{}) int8 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return int8(x)
+	case int8:
+		return x
+	case int16:
+		return int8(x)
+	case int32:
+		return int8(x)
+	case int64:
+		return int8(x)
+	case uint:
+		return int8(x)
+	case uint8:
+		return int8(x)
+	case uint16:
+		return int8(x)
+	case uint32:
+		return int8(x)
+	case uint64:
+		return int8(x)
+	case float32:
+		return int8(x)
+	case float64:
+		return int8(x)
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int8(val)
+	case []byte:
+		val, err := strconv.ParseUint(string(x), 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int8(val)
+	default:
+		return 0
+	}
+}
+
+func ToInt16(val interface{}) int16 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return int16(x)
+	case int8:
+		return int16(x)
+	case int16:
+		return x
+	case int32:
+		return int16(x)
+	case int64:
+		return int16(x)
+	case uint:
+		return int16(x)
+	case uint8:
+		return int16(x)
+	case uint16:
+		return int16(x)
+	case uint32:
+		return int16(x)
+	case uint64:
+		return int16(x)
+	case float32:
+		return int16(x)
+	case float64:
+		return int16(x)
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int16(val)
+	case []byte:
+		val, err := strconv.ParseUint(string(x), 10, 16)
+		if err != nil {
+			return 0
+		}
+		return int16(val)
+	default:
+		return 0
+	}
+}
+
 func ToInt32(val interface{}) int32 {
 	switch x := val.(type) {
 	case bool:
@@ -208,6 +304,54 @@ func ToInt64(val interface{}) int64 {
 			return 0
 		}
 		return val
+	default:
+		return 0
+	}
+}
+
+func ToFloat32(val interface{}) float32 {
+	switch x := val.(type) {
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	case int:
+		return float32(x)
+	case int8:
+		return float32(x)
+	case int16:
+		return float32(x)
+	case int32:
+		return float32(x)
+	case int64:
+		return float32(x)
+	case uint:
+		return float32(x)
+	case uint8:
+		return float32(x)
+	case uint16:
+		return float32(x)
+	case uint32:
+		return float32(x)
+	case uint64:
+		return float32(x)
+	case float32:
+		return x
+	case float64:
+		return float32(x)
+	case string:
+		val, err := strconv.ParseUint(x, 10, 16)
+		if err != nil {
+			return 0
+		}
+		return float32(val)
+	case []byte:
+		val, err := strconv.ParseFloat(string(x), 64)
+		if err != nil {
+			return 0
+		}
+		return float32(val)
 	default:
 		return 0
 	}
