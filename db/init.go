@@ -26,9 +26,20 @@ func Connect(c Config, tables ...interface{}) error {
 	switch c.Database {
 	case MySql:
 		d = mysql.New(mysql.Config{
-			DSN:                    c.Dsn,
-			DefaultStringSize:      500,
-			DontSupportRenameIndex: true,
+			DriverName:                    "",
+			ServerVersion:                 "",
+			DSN:                           c.Dsn,
+			DSNConfig:                     nil,
+			Conn:                          nil,
+			SkipInitializeWithVersion:     false,
+			DefaultStringSize:             500,
+			DefaultDatetimePrecision:      nil,
+			DisableWithReturning:          false,
+			DisableDatetimePrecision:      false,
+			DontSupportRenameIndex:        false,
+			DontSupportRenameColumn:       false,
+			DontSupportForShareClause:     false,
+			DontSupportNullAsDefaultValue: true,
 		})
 	case Sqlite:
 		d = newSqlite(c)
@@ -62,7 +73,7 @@ func Connect(c Config, tables ...interface{}) error {
 		PrepareStmt:                              true,
 		DisableAutomaticPing:                     false,
 		DisableForeignKeyConstraintWhenMigrating: true,
-		DisableNestedTransaction:                 true,
+		DisableNestedTransaction:                 false,
 		AllowGlobalUpdate:                        true,
 		QueryFields:                              false,
 		CreateBatchSize:                          100,
