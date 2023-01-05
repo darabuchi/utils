@@ -288,6 +288,8 @@ func ToInt64(val interface{}) int64 {
 		return int64(x)
 	case uint64:
 		return int64(x)
+	case time.Duration:
+		return int64(x)
 	case float32:
 		return int64(x)
 	case float64:
