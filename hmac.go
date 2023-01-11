@@ -5,14 +5,13 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"crypto/sha512"
-	"encoding/base64"
 	"hash"
 )
 
 func hmacEncode(key, data string, h func() hash.Hash) string {
 	sha := hmac.New(h, []byte(key))
 	sha.Write([]byte(data))
-	return base64.StdEncoding.EncodeToString(sha.Sum(nil))
+	return string(sha.Sum(nil))
 }
 
 func HmacMd5(key, data string) string {
