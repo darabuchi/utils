@@ -101,13 +101,13 @@ func ToInt(val interface{}) int {
 	case float64:
 		return int(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return int(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -149,13 +149,13 @@ func ToInt8(val interface{}) int8 {
 	case float64:
 		return int8(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return int8(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -197,13 +197,13 @@ func ToInt16(val interface{}) int16 {
 	case float64:
 		return int16(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return int16(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -245,13 +245,13 @@ func ToInt32(val interface{}) int32 {
 	case float64:
 		return int32(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return int32(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -295,13 +295,13 @@ func ToInt64(val interface{}) int64 {
 	case float64:
 		return int64(x)
 	case string:
-		val, err := strconv.ParseInt(x, 10, 16)
+		val, err := strconv.ParseInt(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return val
 	case []byte:
-		val, err := strconv.ParseInt(string(x), 10, 16)
+		val, err := strconv.ParseInt(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -343,7 +343,7 @@ func ToFloat32(val interface{}) float32 {
 	case float64:
 		return float32(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -391,7 +391,7 @@ func ToFloat64(val interface{}) float64 {
 	case float64:
 		return x
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -676,13 +676,13 @@ func ToUint(val interface{}) uint {
 	case float64:
 		return uint(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return uint(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -724,13 +724,13 @@ func ToUint8(val interface{}) uint8 {
 	case float64:
 		return uint8(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return uint8(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -772,13 +772,13 @@ func ToUint16(val interface{}) uint16 {
 	case float64:
 		return uint16(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return uint16(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -820,13 +820,13 @@ func ToUint32(val interface{}) uint32 {
 	case float64:
 		return uint32(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return uint32(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
@@ -868,13 +868,13 @@ func ToUint64(val interface{}) uint64 {
 	case float64:
 		return uint64(x)
 	case string:
-		val, err := strconv.ParseUint(x, 10, 16)
+		val, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
 			return 0
 		}
 		return uint64(val)
 	case []byte:
-		val, err := strconv.ParseUint(string(x), 10, 16)
+		val, err := strconv.ParseUint(string(x), 10, 64)
 		if err != nil {
 			return 0
 		}
