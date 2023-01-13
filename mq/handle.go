@@ -120,6 +120,7 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 							err = channel.TouchMessage(clientId, msg.ID, time.Minute)
 							if err != nil {
 								log.Errorf("err:%v", err)
+								return
 							}
 						case <-finishC:
 							return
