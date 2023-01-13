@@ -111,76 +111,24 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 				}
 
 				finishC := make(chan bool, 1)
-				go func() {
-					ticker := time.NewTicker(time.Second * 5)
-					defer ticker.Stop()
-					for {
-						select {
-						case <-ticker.C:
-							err = channel.TouchMessage(clientId, msg.ID, time.Minute)
-							if err != nil {
-								log.Errorf("err:%v", err)
-								return
-							}
-						case <-finishC:
+
+				go func(finishC chan bool) {
+					defer func() {
+						finishC <- true
+					}()
+
+					defer utils.CachePanicWithHandle(func(err interface{}) {
+						err = channel.FinishMessage(clientId, msg.ID)
+						if err != nil {
+							log.Errorf("err:%v", err)
 							return
 						}
-					}
-				}()
-				defer func() {
-					finishC <- true
-				}()
+					})
 
-				defer utils.CachePanicWithHandle(func(err interface{}) {
-					err = channel.FinishMessage(clientId, msg.ID)
+					var m nsqMsg
+					err = sonic.Unmarshal(msg.Body, &m)
 					if err != nil {
 						log.Errorf("err:%v", err)
-						return
-					}
-				})
-
-				var m nsqMsg
-				err = sonic.Unmarshal(msg.Body, &m)
-				if err != nil {
-					log.Errorf("err:%v", err)
-
-					err = channel.FinishMessage(clientId, msg.ID)
-					if err != nil {
-						log.Errorf("err:%v", err)
-						return
-					}
-
-					return
-				}
-
-				if handel.MsgTimeout > 0 && time.Since(m.PubAt) > handel.MsgTimeout {
-					log.Warnf("msg timeout")
-					err := channel.FinishMessage(clientId, msg.ID)
-					if err != nil {
-						log.Errorf("err:%v", err)
-						return
-					}
-					return
-				}
-
-				log.SetTrace(m.TraceId + "." + log.GenTraceId() + "." + topicName.String() + "." + channelName.String())
-				log.Infof("[%s(%s)]handel msg %s", topicName.String(), channelName.String(), msg.ID.String())
-
-				req := &HandleReq{
-					MsgId:    msg.ID.String(),
-					Attempts: msg.Attempts,
-					Body:     m.Body,
-					PubAt:    m.PubAt,
-				}
-
-				req.Message = reflect.New(rt).Interface()
-				err = sonic.Unmarshal(req.Body, req.Message)
-				if err != nil {
-					log.Errorf("err:%v", err)
-				} else {
-					err = utils.Validate(req.Message)
-					if err != nil {
-						log.Errorf("topic:%s err:%v", topicName.String(), err)
 
 						err = channel.FinishMessage(clientId, msg.ID)
 						if err != nil {
@@ -190,78 +138,139 @@ func RegisterHandel(topicName fmt.Stringer, channelName fmt.Stringer, handel *Ha
 
 						return
 					}
-				}
 
-				start := time.Now()
-				rsp, err := handel.HandleFunc(req)
-				duration := time.Since(start)
-				defer func() {
-					log.Infof("topic:%s[%s],msg:%s,duration:%v", topicName, channelName, msg.ID, duration)
-				}()
-				if err != nil {
-					log.Errorf("err:%v", err)
+					if handel.MsgTimeout > 0 && time.Since(m.PubAt) > handel.MsgTimeout {
+						log.Warnf("msg timeout")
+						err := channel.FinishMessage(clientId, msg.ID)
+						if err != nil {
+							log.Errorf("err:%v", err)
+							return
+						}
+						return
+					}
 
-					switch x := err.(type) {
-					case *utils.Error:
-						if x.NeedRetry {
-							// 默认重试，除非用户指定了
-							if rsp == nil || rsp.NeedRetry {
-								if rsp != nil && rsp.WaitTime > 0 {
-									log.Warnf("retry %s after %v", msg.ID.String(), rsp.WaitTime)
+					log.SetTrace(m.TraceId + "." + log.GenTraceId() + "." + topicName.String() + "." + channelName.String())
+					log.Infof("[%s(%s)]handel msg %s", topicName.String(), channelName.String(), msg.ID.String())
+
+					req := &HandleReq{
+						MsgId:    msg.ID.String(),
+						Attempts: msg.Attempts,
+						Body:     m.Body,
+						PubAt:    m.PubAt,
+					}
+
+					req.Message = reflect.New(rt).Interface()
+					err = sonic.Unmarshal(req.Body, req.Message)
+					if err != nil {
+						log.Errorf("err:%v", err)
+					} else {
+						err = utils.Validate(req.Message)
+						if err != nil {
+							log.Errorf("topic:%s err:%v", topicName.String(), err)
+
+							err = channel.FinishMessage(clientId, msg.ID)
+							if err != nil {
+								log.Errorf("err:%v", err)
+								return
+							}
+
+							return
+						}
+					}
+
+					start := time.Now()
+					rsp, err := handel.HandleFunc(req)
+					duration := time.Since(start)
+					defer func() {
+						log.Infof("topic:%s[%s],msg:%s,duration:%v", topicName, channelName, msg.ID, duration)
+					}()
+					if err != nil {
+						log.Errorf("err:%v", err)
+
+						switch x := err.(type) {
+						case *utils.Error:
+							if x.NeedRetry {
+								// 默认重试，除非用户指定了
+								if rsp == nil || rsp.NeedRetry {
+									if rsp != nil && rsp.WaitTime > 0 {
+										log.Warnf("retry %s after %v", msg.ID.String(), rsp.WaitTime)
+										err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
+									} else {
+										log.Warnf("retry %s after 5s", msg.ID.String())
+										err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
+									}
+									if err != nil {
+										log.Errorf("err:%v", err)
+										return
+									}
+								}
+							}
+						default:
+							// 除非指定重试
+							if rsp != nil && rsp.NeedRetry {
+								log.Warnf("wait retry")
+								if rsp.WaitTime > 0 {
+									log.Warnf("wait %v retry", rsp.WaitTime)
 									err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
 								} else {
-									log.Warnf("retry %s after 5s", msg.ID.String())
+									log.Warnf("wait %v retry", time.Second*5)
 									err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
 								}
 								if err != nil {
 									log.Errorf("err:%v", err)
 									return
 								}
-							}
-						}
-					default:
-						// 除非指定重试
-						if rsp != nil && rsp.NeedRetry {
-							log.Warnf("wait retry")
-							if rsp.WaitTime > 0 {
-								log.Warnf("wait %v retry", rsp.WaitTime)
-								err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
-							} else {
-								log.Warnf("wait %v retry", time.Second*5)
-								err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
-							}
-							if err != nil {
-								log.Errorf("err:%v", err)
 								return
 							}
+						}
+
+						return
+					}
+
+					// 需要重试
+					if rsp.NeedRetry {
+						if rsp.WaitTime > 0 {
+							log.Warnf("wait %v retry", rsp.WaitTime)
+							err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
+						} else {
+							log.Warnf("wait %v retry", time.Second*5)
+							err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
+						}
+						if err != nil {
+							log.Errorf("err:%v", err)
 							return
 						}
+						return
 					}
 
-					return
-				}
-
-				// 需要重试
-				if rsp.NeedRetry {
-					if rsp.WaitTime > 0 {
-						log.Warnf("wait %v retry", rsp.WaitTime)
-						err = channel.RequeueMessage(clientId, msg.ID, rsp.WaitTime)
-					} else {
-						log.Warnf("wait %v retry", time.Second*5)
-						err = channel.RequeueMessage(clientId, msg.ID, time.Second*5)
-					}
+					// 正常结束
+					err = channel.FinishMessage(clientId, msg.ID)
 					if err != nil {
 						log.Errorf("err:%v", err)
 						return
 					}
-					return
-				}
+				}(finishC)
 
-				// 正常结束
-				err = channel.FinishMessage(clientId, msg.ID)
-				if err != nil {
-					log.Errorf("err:%v", err)
-					return
+				touch := time.NewTicker(time.Second * 5)
+				defer touch.Stop()
+
+				timeout := time.NewTimer(time.Minute * 10)
+				defer timeout.Stop()
+
+				for {
+					select {
+					case <-touch.C:
+						err = channel.TouchMessage(clientId, msg.ID, time.Minute)
+						if err != nil {
+							log.Errorf("err:%v", err)
+							return
+						}
+					case <-timeout.C:
+						log.Warnf("%s exec timeout", msg.ID.String())
+						return
+					case <-finishC:
+						return
+					}
 				}
 			}
 
