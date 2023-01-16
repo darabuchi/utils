@@ -12,7 +12,7 @@ require (
 	github.com/bytedance/sonic v1.5.0
 	github.com/chenzhuoyu/base64x v0.0.0-20220526154910-8bf9453eb81a // indirect
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
-	github.com/darabuchi/log v0.0.0-20230116101514-9f6cc06dc45b
+	github.com/darabuchi/log v0.0.0-20230116101949-9904b5700415
 	github.com/elliotchance/pie v1.39.0
 	github.com/frankban/quicktest v1.14.4 // indirect
 	github.com/garyburd/redigo v1.6.4

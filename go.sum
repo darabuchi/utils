@@ -255,8 +255,8 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098 h1:7s8vq+YCWgHNSjcoPliSJKAITquovCrCrpDY9dEs7u4=
 github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098/go.mod h1:e6rpblPhH+9Cb0s30UjF3pmP7FhUI19I6aPfz6rqIy4=
-github.com/darabuchi/log v0.0.0-20230116101514-9f6cc06dc45b h1:YmZQoClHrBnPWmfCnMQ5jFEneV5yhr94ZzGPoGp+RDk=
-github.com/darabuchi/log v0.0.0-20230116101514-9f6cc06dc45b/go.mod h1:n+RFsoMIkQEReUIayRPXgNKI2xVS386ls4HwdjMcaLY=
+github.com/darabuchi/log v0.0.0-20230116101949-9904b5700415 h1:HXr7S2GTkb7zqTA6zMsgiFiCPliBxEdWFggQXmwIXgo=
+github.com/darabuchi/log v0.0.0-20230116101949-9904b5700415/go.mod h1:n+RFsoMIkQEReUIayRPXgNKI2xVS386ls4HwdjMcaLY=
 github.com/darabuchi/nsq v1.2.2-0.20220625061629-f6fd2f159a76 h1:U85otXOl6Uqr9WjjlbitOdr/sGN3ZmosJzmCsSXmGgE=
 github.com/darabuchi/nsq v1.2.2-0.20220625061629-f6fd2f159a76/go.mod h1:EuWqlEiWROLi5Beu7DYjOpqVK78Q2Egqy+y7SAf2piU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
