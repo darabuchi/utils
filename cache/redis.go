@@ -21,7 +21,7 @@ func Connect(addr string, db int, password string) error {
 	client = xredis.NewClient(&redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp", addr,
-				redis.DialDatabase(1),
+				redis.DialDatabase(db),
 				redis.DialConnectTimeout(time.Second*3),
 				redis.DialReadTimeout(time.Second*3),
 				redis.DialWriteTimeout(time.Second*3),

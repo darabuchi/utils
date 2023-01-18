@@ -7,7 +7,7 @@ import (
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 
 	"github.com/darabuchi/log"
-mysqlC	"github.com/go-sql-driver/mysql"
+	mysqlC "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -28,18 +28,18 @@ func Connect(c Config, tables ...interface{}) error {
 	switch c.Database {
 	case MySql:
 		d = mysql.New(mysql.Config{
-			DriverName:                    "",
-			ServerVersion:                 "",
-			DSN:                           c.Dsn,
-			DSNConfig:                     &mysqlC.Config{
+			DriverName:    "",
+			ServerVersion: "",
+			DSN:           c.Dsn,
+			DSNConfig: &mysqlC.Config{
 				Params:                  nil,
 				Collation:               "",
 				MaxAllowedPacket:        0,
 				ServerPubKey:            "",
 				TLSConfig:               "",
-				Timeout:                 time.Second*5,
-				ReadTimeout:             time.Second*30,
-				WriteTimeout:            time.Second*30,
+				Timeout:                 time.Second * 5,
+				ReadTimeout:             time.Second * 30,
+				WriteTimeout:            time.Second * 30,
 				AllowAllFiles:           true,
 				AllowCleartextPasswords: true,
 				AllowNativePasswords:    true,
