@@ -104,10 +104,11 @@ func (p *Map) Get(key string) (interface{}, error) {
 func (p *Map) get(key string) (interface{}, bool) {
 	var val interface{}
 	var ok bool
+
+	if val, ok = p.data.Load(key); ok {
+		return val, true
+	}
 	if !p.cut.Load() {
-		if val, ok := p.data.Load(key); ok {
-			return val, true
-		}
 		return nil, false
 	}
 

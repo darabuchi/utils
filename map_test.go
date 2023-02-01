@@ -41,3 +41,13 @@ func TestNewJson(t *testing.T) {
 	t.Log(requestId)
 	t.Log(reflect.TypeOf(requestId).Kind())
 }
+
+func TestBeginCut(t *testing.T) {
+	m := NewMap(map[string]interface{}{
+		".a":   1,
+		".b.a": 2,
+	})
+	m.EnableCut(".")
+
+	t.Log(m.Get(".a"))
+}
