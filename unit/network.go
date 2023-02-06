@@ -5,23 +5,23 @@ import (
 )
 
 const (
-	bits = 1
-	Kb   = 1024 * bits
-	Mb   = 1024 * Kb
-	Gb   = 1024 * Mb
-	Tb   = 1024 * Gb
-	Pb   = 1024 * Tb
-	Eb   = 1024 * Pb
-)
-
-const (
-	Byte = bits * 8
+	Byte = 1
 	KB   = 1024 * Byte
 	MB   = 1024 * KB
 	GB   = 1024 * MB
 	TB   = 1024 * GB
 	PB   = 1024 * TB
 	EB   = 1024 * PB
+)
+
+const (
+	bits = Byte * 8
+	Kb   = 1024 * bits
+	Mb   = 1024 * Kb
+	Gb   = 1024 * Mb
+	Tb   = 1024 * Gb
+	Pb   = 1024 * Tb
+	Eb   = 1024 * Pb
 )
 
 func Speed2Str(speed float64) string {
