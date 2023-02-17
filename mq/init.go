@@ -30,7 +30,7 @@ func Start(o *Option) error {
 	opt.HTTPSAddress = ""
 	opt.TCPAddress = ""
 	opt.BroadcastAddress = ""
-	opt.MaxMsgSize = -1
+	opt.MaxMsgSize = 0
 	opt.MemQueueSize = o.MemQueueSize
 
 	opt.DataPath = o.DataPath

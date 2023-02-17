@@ -6,6 +6,16 @@ import (
 	"github.com/nsqio/nsq/nsqd"
 )
 
+type Topic string
+
+func (p Topic) String() string {
+	return string(p)
+}
+
+func (p Topic) GoString() string {
+	return p.String()
+}
+
 func CloneTopic() map[string]*nsqd.Topic {
 	return producer.CloneTopic()
 }

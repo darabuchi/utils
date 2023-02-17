@@ -32,7 +32,7 @@ func (p *Option) init() error {
 	}
 
 	if p.MemQueueSize <= 0 {
-		p.MemQueueSize = -1
+		p.MemQueueSize = 0
 	}
 
 	return nil

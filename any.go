@@ -2,12 +2,13 @@ package utils
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bytedance/sonic"
 )
 
 func ToString(val interface{}) string {
@@ -60,7 +61,7 @@ func ToString(val interface{}) string {
 	case error:
 		return x.Error()
 	default:
-		buf, err := json.Marshal(x)
+		buf, err := sonic.Marshal(x)
 		if err != nil {
 			return ""
 		}

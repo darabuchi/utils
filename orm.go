@@ -2,10 +2,10 @@ package utils
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"reflect"
 
+	"github.com/bytedance/sonic"
 	"github.com/mcuadros/go-defaults"
 	"github.com/pkg/errors"
 )
@@ -14,9 +14,9 @@ func Scan(src interface{}, dst interface{}) error {
 	x := func(buf []byte) error {
 		bufLen := len(buf)
 		if bufLen >= 2 && buf[0] == '{' && buf[bufLen-1] == '}' {
-			return json.Unmarshal(buf, dst)
+			return sonic.Unmarshal(buf, dst)
 		} else if bufLen > 0 {
-			return json.Unmarshal(buf, dst)
+			return sonic.Unmarshal(buf, dst)
 		} else {
 			defaults.SetDefaults(dst)
 		}
@@ -46,5 +46,5 @@ func Value(m interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	return json.Marshal(m)
+	return sonic.Marshal(m)
 }

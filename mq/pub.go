@@ -1,10 +1,10 @@
 package mq
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/darabuchi/log"
 	"github.com/darabuchi/utils"
 	"github.com/nsqio/nsq/nsqd"
@@ -34,7 +34,7 @@ func Publish(topicName fmt.Stringer, message interface{}) (*PublishRsp, error) {
 			log.Errorf("err:%v", err)
 			return nil, err
 		}
-		value, err = json.Marshal(x)
+		value, err = sonic.Marshal(x)
 		if err != nil {
 			log.Errorf("err:%v", err)
 			return nil, err
@@ -51,7 +51,7 @@ func pub(topicName fmt.Stringer, msg *nsqMsg) (*PublishRsp, error) {
 	msg.PubAt = time.Now()
 	msg.TraceId = log.GenTraceId()
 
-	buf, err := json.Marshal(msg)
+	buf, err := sonic.Marshal(msg)
 	if err != nil {
 		log.Errorf("err:%v", err)
 		return nil, err

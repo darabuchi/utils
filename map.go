@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -65,7 +64,7 @@ func NewMapWithYaml(s []byte) (*Map, error) {
 }
 
 func NewMapWithAny(s interface{}) (*Map, error) {
-	buf, err := json.Marshal(s)
+	buf, err := sonic.Marshal(s)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +375,7 @@ func (p *Map) toMap(val interface{}) *Map {
 		}
 		return m
 	default:
-		buf, err := json.Marshal(x)
+		buf, err := sonic.Marshal(x)
 		if err != nil {
 			return NewMap(nil)
 		}
