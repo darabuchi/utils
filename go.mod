@@ -1,6 +1,6 @@
 module github.com/darabuchi/utils
 
-go 1.16
+go 1.18
 
 require (
 	github.com/AndreKR/multiface v0.0.0-20211114051930-f51f19dee2dc
