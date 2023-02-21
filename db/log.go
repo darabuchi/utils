@@ -53,7 +53,7 @@ func (l *Logger) Error(ctx context.Context, s string, i ...interface{}) {
 
 func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
 	var callerName string
-	pc, _, callerLine, ok := runtime.Caller(4)
+	pc, _, callerLine, ok := runtime.Caller(3)
 	if ok {
 		callerName = runtime.FuncForPC(pc).Name()
 	}

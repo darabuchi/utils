@@ -41,7 +41,12 @@ func CopyFile(src, dst string) error {
 	}
 	defer srcFile.Close()
 
-	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE, 0644)
+	info, err := srcFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE, info.Mode())
 	if err != nil {
 		return err
 	}
