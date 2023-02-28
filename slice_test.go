@@ -1,6 +1,7 @@
-package utils
+package utils_test
 
 import (
+	"github.com/darabuchi/utils"
 	"reflect"
 	"strconv"
 	"testing"
@@ -38,7 +39,7 @@ func TestPluckUint64(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PluckUint64(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
+			if got := utils.PluckUint64(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("PluckUint64() = %v, want %v", got, tt.want)
 			}
 		})
@@ -59,7 +60,7 @@ func pluckUint64(max uint64, b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		PluckUint64(items, "Id")
+		utils.PluckUint64(items, "Id")
 	}
 }
 
@@ -144,7 +145,7 @@ func TestKeyByV2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := KeyBy(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
+			if got := utils.KeyBy(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("KeyBy() = %v, want %v", got, tt.want)
 			}
 		})
@@ -167,7 +168,7 @@ func keyBy(max int64, b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = KeyBy(items, "Id").(map[int64]*item)
+		_ = utils.KeyBy(items, "Id").(map[int64]*item)
 	}
 }
 
@@ -228,7 +229,7 @@ func TestPluckStringSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PluckStringSlice(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
+			if got := utils.PluckStringSlice(tt.args.list, tt.args.fieldName); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("PluckStringSlice() = %v, want %v", got, tt.want)
 			}
 		})
@@ -253,7 +254,7 @@ func TestPluckString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PluckString(tt.args, ""); !reflect.DeepEqual(got, tt.want) {
+			if got := utils.PluckString(tt.args, ""); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("PluckString() = %v, want %v", got, tt.want)
 			}
 		})

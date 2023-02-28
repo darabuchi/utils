@@ -5,7 +5,7 @@ package utils
 
 import "sync"
 
-func Async[M any](process int, push func(chan M), logic func(M)) {
+func Async[M any](process int, push func(c chan M), logic func(M)) {
 	c := make(chan M)
 
 	var w sync.WaitGroup
