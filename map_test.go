@@ -1,25 +1,25 @@
-package utils
+package utils_test
 
 import (
+	"github.com/darabuchi/log"
+	"github.com/darabuchi/utils"
 	"reflect"
 	"testing"
-
-	"github.com/darabuchi/log"
 )
 
 func TestNewMap(t *testing.T) {
-	m := NewMap(map[string]interface{}{
+	m := utils.NewMap(map[string]interface{}{
 		"a": []uint64{1, 2, 3, 4, 5},
 	}).EnableCut(".")
 
 	// log.Info(m.Get("a.b"))
 	// log.Info(m.Get("a.d"))
 	log.Info(m.GetSlice("a"))
-	log.Info(ToString(m.ToMap()))
+	log.Info(utils.ToString(m.ToMap()))
 }
 
 func TestNewJson(t *testing.T) {
-	m, err := NewMapWithJson([]byte(`{
+	m, err := utils.NewMapWithJson([]byte(`{
     "code": 0,
     "data": {
         "request_id": "3d29133b-e74e-40c7-8274-46da235aacd0"
@@ -34,7 +34,7 @@ func TestNewJson(t *testing.T) {
 	m.EnableCut(".")
 
 	mm := m.ToMap()
-	t.Log(MapKeysString(mm))
+	t.Log(utils.MapKeysString(mm))
 	data := mm["data"]
 	t.Logf("%+v", data)
 	requestId := data.(map[string]interface{})["request_id"]
@@ -43,7 +43,7 @@ func TestNewJson(t *testing.T) {
 }
 
 func TestBeginCut(t *testing.T) {
-	m := NewMap(map[string]interface{}{
+	m := utils.NewMap(map[string]interface{}{
 		".a":   1,
 		".b.a": 2,
 	})

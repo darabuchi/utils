@@ -3,6 +3,7 @@ package utils
 import (
 	"math/big"
 	"net"
+	"net/netip"
 )
 
 func IsIp(ip string) bool {
@@ -68,41 +69,10 @@ func Int2Ip(ip int64) net.IP {
 }
 
 func IsLocalIp(ip string) bool {
-	i := net.ParseIP(ip)
-	if i == nil {
+	i, err := netip.ParseAddr(ip)
+	if err != nil {
 		return false
 	}
 
-	if i.To4() == nil {
-		return false
-	}
-
-	inputIpNum := Ip2Int(ip)
-
-	innerIpF := Ip2Int("127.255.255.255")
-	if inputIpNum>>24 == innerIpF>>24 {
-		return true
-	}
-
-	innerIpC := Ip2Int("192.168.255.255")
-	if inputIpNum>>16 == innerIpC>>16 {
-		return true
-	}
-
-	innerIpB := Ip2Int("172.16.255.255")
-	if inputIpNum>>20 == innerIpB>>20 {
-		return true
-	}
-
-	innerIpA := Ip2Int("10.255.255.255")
-	if inputIpNum>>24 == innerIpA>>24 {
-		return true
-	}
-
-	innerIpD := Ip2Int("100.64.255.255")
-	if inputIpNum>>22 == innerIpD>>22 {
-		return true
-	}
-
-	return false
+	return i.IsPrivate()
 }

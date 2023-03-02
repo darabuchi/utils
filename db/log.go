@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"path"
 	"runtime"
 	"strings"
 	"time"
@@ -53,14 +54,16 @@ func (l *Logger) Error(ctx context.Context, s string, i ...interface{}) {
 
 func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
 	var callerName string
-	pc, _, callerLine, ok := runtime.Caller(3)
+	pc, file, callerLine, ok := runtime.Caller(3)
 	if ok {
 		callerName = runtime.FuncForPC(pc).Name()
 	}
 
+	callerDir, callerFunc := log.SplitPackageName(callerName)
+
 	sql, rowsAffected := fc()
 	l.logger.Infof("%s %s %s %s",
-		color.Yellow.Sprintf("%s:%d", callerName, callerLine),
+		color.Yellow.Sprintf("%s:%d %s", path.Join(callerDir, path.Base(file)), callerLine, callerFunc),
 		color.Blue.Sprintf("[%s]", time.Since(begin)),
 		strings.ReplaceAll(sql, "\n", " "),
 		color.Blue.Sprintf("[%d rows]", rowsAffected),
