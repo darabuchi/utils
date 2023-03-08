@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"io"
 	"path"
 	"runtime"
 	"strings"
@@ -18,7 +19,15 @@ type Logger struct {
 
 func NewLogger() *Logger {
 	l := &Logger{
-		logger: log.Clone().SetCallerDepth(5),
+		logger: log.Clone().SetCallerDepth(4),
+	}
+	l.LogMode(logger.Info)
+	return l
+}
+
+func NewDiscard() *Logger {
+	l := &Logger{
+		logger: log.Clone().SetCallerDepth(4).SetOutput(io.Discard),
 	}
 	l.LogMode(logger.Info)
 	return l

@@ -85,3 +85,7 @@ func FirstOrCreate(dest interface{}, conds ...interface{}) (tx *gorm.DB) {
 func CreateInBatches(value interface{}, batchSize int) *gorm.DB {
 	return getDb().CreateInBatches(value, batchSize)
 }
+
+func FindInBatches(dest interface{}, batchSize int, fc func(tx *gorm.DB, batch int) error) *gorm.DB {
+	return getDb().FindInBatches(dest, batchSize, fc)
+}

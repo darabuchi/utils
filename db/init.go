@@ -22,6 +22,10 @@ func Connect(c Config, tables ...interface{}) error {
 		return nil
 	}
 
+	if c.Logger == nil {
+		c.Logger = NewLogger()
+	}
+
 	log.Infof("connecting to database (%s)%s ", c.Database, c.Dsn)
 
 	var d gorm.Dialector
@@ -88,7 +92,7 @@ func Connect(c Config, tables ...interface{}) error {
 			SingularTable: true,
 		},
 		FullSaveAssociations:                     false,
-		Logger:                                   NewLogger(),
+		Logger:                                   c.Logger,
 		NowFunc:                                  nil,
 		DryRun:                                   false,
 		PrepareStmt:                              true,

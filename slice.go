@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"golang.org/x/exp/constraints"
 	"reflect"
 
 	"github.com/darabuchi/log"
@@ -239,4 +240,14 @@ func KeyBy(list interface{}, fieldName string) interface{} {
 	}
 
 	return m.Interface()
+}
+
+func Slice2Map[M constraints.Ordered](list []M) map[M]bool {
+	m := make(map[M]bool, len(list))
+
+	for _, v := range list {
+		m[v] = true
+	}
+
+	return m
 }

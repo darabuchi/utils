@@ -1,5 +1,7 @@
 package db
 
+import "gorm.io/gorm/logger"
+
 type Database string
 
 const (
@@ -16,4 +18,6 @@ type Config struct {
 	Debug    bool     `json:"debug,omitempty"`
 
 	DriverName string `json:"driver,omitempty"`
+
+	Logger logger.Interface `json:"logger,omitempty"`
 }
