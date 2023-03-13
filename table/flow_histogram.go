@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/elliotchance/pie/pie"
+	"github.com/elliotchance/pie/v2"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
@@ -17,7 +17,7 @@ type FlowHistogram struct {
 
 	bgColor, fgColor color.Color
 
-	data pie.Float64s
+	data []float64
 
 	baseData float64
 	isFull   bool
@@ -39,7 +39,7 @@ func (p *FlowHistogram) DrawImg(x, y float64, img *image.RGBA) error {
 
 	DrawRectangleColor(img, p.fgColor, x, y, s.Width, s.Height)
 
-	max := p.data.Max()
+	max := pie.Max(p.data)
 	width := s.Width / float64(len(p.data))
 
 	for i := 0; i < len(p.data); i++ {

@@ -5,7 +5,7 @@ import (
 	"image/color"
 
 	"github.com/crystal-construct/analytics"
-	"github.com/elliotchance/pie/pie"
+	pie "github.com/elliotchance/pie/v2"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
@@ -18,7 +18,7 @@ type FlowCurve struct {
 
 	bgColor, fgColor color.Color
 
-	data pie.Float64s
+	data []float64
 
 	baseData float64
 	isFull   bool
@@ -40,7 +40,7 @@ func (p *FlowCurve) DrawImg(x, y float64, img *image.RGBA) error {
 
 	DrawRectangleColor(img, p.bgColor, x, y, s.Width, s.Height)
 
-	max := p.data.Max()
+	max := pie.Max(p.data)
 	width := s.Width / float64(len(p.data)-1) / 1000
 
 	series := analytics.NewSeries()

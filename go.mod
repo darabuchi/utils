@@ -10,7 +10,7 @@ require (
 	github.com/bytedance/sonic v1.7.0
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
 	github.com/darabuchi/log v0.0.0-20230125075412-100a40edc2a0
-	github.com/elliotchance/pie v1.39.0
+	github.com/elliotchance/pie/v2 v2.5.1
 	github.com/garyburd/redigo v1.6.4
 	github.com/glebarez/sqlite v1.5.0
 	github.com/go-playground/validator/v10 v10.11.2
@@ -32,6 +32,7 @@ require (
 	go.uber.org/atomic v1.10.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.6.0
+	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 	golang.org/x/image v0.5.0
 	golang.org/x/text v0.7.0
 	gopkg.in/yaml.v3 v3.0.1

@@ -234,6 +234,27 @@ func HSet(key string, field string, value interface{}) (bool, error) {
 	return client.HSet(key, field, utils.ToString(value))
 }
 
+func HGet(key, field string) (string, error) {
+	val, ok, err := client.HGet(key, field)
+	if err != nil {
+		return "", err
+	}
+	if !ok {
+		return "", redis.ErrNil
+	}
+
+	return val, nil
+}
+
+func HGetJson(key, field string, j interface{}) error {
+	val, err := HGet(key, field)
+	if err != nil {
+		return err
+	}
+
+	return sonic.Unmarshal([]byte(val), j)
+}
+
 func HGetAll(key string) (map[string]string, error) {
 	return client.HGetAll(key)
 }
