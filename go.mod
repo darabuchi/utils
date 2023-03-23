@@ -9,7 +9,7 @@ require (
 	github.com/auyer/steganography v1.0.2
 	github.com/bytedance/sonic v1.7.0
 	github.com/crystal-construct/analytics v0.0.0-20160309172048-27445d731098
-	github.com/darabuchi/log v0.0.0-20230125075412-100a40edc2a0
+	github.com/darabuchi/log v0.0.0-20230323042819-e71eb8ef731c
 	github.com/elliotchance/pie/v2 v2.5.1
 	github.com/garyburd/redigo v1.6.4
 	github.com/glebarez/sqlite v1.5.0
@@ -96,7 +96,7 @@ require (
 	github.com/nsqio/go-nsq v1.1.0 // indirect
 	github.com/nwaples/rardecode v1.1.3 // indirect
 	github.com/onsi/gomega v1.20.0 // indirect
-	github.com/petermattis/goid v0.0.0-20221215004737-a150e88a970d // indirect
+	github.com/petermattis/goid v0.0.0-20230317030725-371a4b8eda08 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa // indirect
@@ -115,7 +115,7 @@ require (
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.7 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.2.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect

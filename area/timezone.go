@@ -118,6 +118,8 @@ const (
 	AmericaGuadeloupe           Timezone = "America/Guadeloupe"             // 瓜德罗普 +04:00
 	AmericaGuatemala            Timezone = "America/Guatemala"              // 危地马拉 +06:00
 	AmericaGuayaquil            Timezone = "America/Guayaquil"              // 瓜亚基尔 +05:00
+	AmericaGustavia             Timezone = "America/Gustavia"               // 格斯塔维亚 +04:00
+	AmericaHamilton             Timezone = "America/Hamilton"               // 哈密尔顿 +06:00
 	AmericaGuyana               Timezone = "America/Guyana"                 // 圭亚那 +04:00
 	AmericaHalifax              Timezone = "America/Halifax"                // 海防 +04:00
 	AmericaHavana               Timezone = "America/Havana"                 // 哈瓦那 +05:00
